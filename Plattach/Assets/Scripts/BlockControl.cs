@@ -23,14 +23,14 @@ public class Block
 		MAGENTA, // 마젠타.
 		ORANGE, // 오렌지.
 		GRAY, // 회색.
-		NUM, // 색이 몇 종류인지 나타낸다(=7).
-		FIRST = PINK, // 초기 색상(분홍)
-		LAST = ORANGE, // 마지막 색상（오렌지）.
-		NORMAL_COLOR_NUM = GRAY, // 일반 색상(그레이 이외)의 수.
+		NUM, // 색상이 몇 종류인지 나타낸다(=7).
+		FIRST = PINK, // 초기 색상(분홍색).
+		LAST = ORANGE, // 마지막 색상(오렌지).
+		NORMAL_COLOR_NUM = GRAY, // 일반 색상(그레이 이외 색)의 수.
 	};
 
 	public enum DIR4
-	{ // 마우스로 잡은 후의 드래그 방향.
+	{ // 상하좌우 네 방향.
 		NONE = -1, // 방향 지정 없음.
 		RIGHT, // 오른쪽.
 		LEFT, // 왼쪽.
@@ -44,7 +44,7 @@ public class Block
 		NONE = -1, // 상태 정보 없음.
 		IDLE = 0, // 대기 중.
 		GRABBED, // 잡혀있다.
-		RELEASED, // 놓은 상태.
+		RELEASED, // 놓은 순간.
 		SLIDE, // 슬라이드 중.
 		VACANT, // 소멸 중.
 		RESPAWN, // 재생성 중.
@@ -67,8 +67,8 @@ public class BlockControl : MonoBehaviour
 	public BlockRoot block_root = null; // 블록의 신.
 	public Block.iPosition i_pos; // 블록 좌표.
 
-	public Block.STEP step = Block.STEP.NONE; // 지금 좌표.
-	public Block.STEP next_step = Block.STEP.NONE; // 다음 좌표.
+	public Block.STEP step = Block.STEP.NONE; // 지금 상태.
+	public Block.STEP next_step = Block.STEP.NONE; // 다음 상태.
 	private Vector3 position_offset_initial = Vector3.zero; // 교체 전 위치.
 	public Vector3 position_offset = Vector3.zero; // 교체 후 위치.
 
@@ -100,9 +100,9 @@ public class BlockControl : MonoBehaviour
 	void Update()
 	{
 		Vector3 mouse_position; // 마우스 위치.
-		this.block_root.unprojectMousePosition( // 마우스 위치를 가져온다.
+		this.block_root.unprojectMousePosition( // 마우스 위치 가져오기.
 											   out mouse_position, Input.mousePosition);
-		// 가져온 마우스 위치를 하나의 Vector2에 모은다.
+		// 가져온 마우스 위치를 X와 Y만으로 한다.
 		Vector2 mouse_position_xy = new Vector2(mouse_position.x, mouse_position.y);
 
 
@@ -110,9 +110,9 @@ public class BlockControl : MonoBehaviour
 		{ // 타이머가 0이상이면.
 			this.vanish_timer -= Time.deltaTime; // 타이머의 값을 줄인다.
 			if (this.vanish_timer < 0.0f)
-			{ // 타이머가 0 미만이면.
+			{ // 타이머가 0미만이면.
 				if (this.step != Block.STEP.SLIDE)
-				{ // 슬라이드 중이 아니라면.
+				{ // 슬라이드 중이 아니므로.
 					this.vanish_timer = -1.0f;
 					this.next_step = Block.STEP.VACANT; // 상태를 '소멸 중'으로.
 				}
@@ -128,19 +128,19 @@ public class BlockControl : MonoBehaviour
 		float slide_time = 0.2f;
 
 		if (this.next_step == Block.STEP.NONE)
-		{ // 상태 정보 없음인 경우. 
+		{ // 상태 정보가 없는 상태.
 			switch (this.step)
 			{
 				case Block.STEP.SLIDE:
 					if (this.step_timer >= slide_time)
 					{
-						// vanish_timer(사라질 때까지의 시간)가 0이면.
-						// VACANT(사라진)상태로 전환.
+						// 슬라이드 중에 블록이 소멸이 소멸하면.
+						// VACANT(사라지는)상태로 전환.
 						if (this.vanish_timer == 0.0f)
 						{
 							this.next_step = Block.STEP.VACANT;
 							// vanish_timer가 0이 아니면.
-							// IDLE（대기）상태로 전환.
+							// IDLE(대기)상태로 전환.
 						}
 						else
 						{
@@ -211,7 +211,7 @@ public class BlockControl : MonoBehaviour
 
 		switch (this.step)
 		{
-			case Block.STEP.GRABBED: // '잡힌 상태'.
+			case Block.STEP.GRABBED: //  '잡힌 상태'.
 									 // '잡힌 상태'일 때는 항상 슬라이드 방향을 체크.
 				this.slide_dir = this.calcSlideDir(mouse_position_xy);
 				break;
@@ -239,7 +239,7 @@ public class BlockControl : MonoBehaviour
 
 
 		// 그리드 좌표를 실제 좌표(씬의 좌표)로 변환하고.
-		// position_offset를 더한다.
+		// position_offset을 더한다.
 		Vector3 position =
 			BlockRoot.calcBlockPosition(this.i_pos) + this.position_offset;
 		// 실제 위치를 새로운 위치로 변경.
@@ -249,9 +249,14 @@ public class BlockControl : MonoBehaviour
 		this.setColor(this.color);
 		if (this.vanish_timer >= 0.0f)
 		{
-			Color color0 = // 현재 색과 흰색의 중간 색.
+			// 현재 레벨의 연소시간으로 설정.
+			float vanish_time =
+				this.block_root.level_control.getVanishTime();
+
+
+			Color color0 = // 현재 색과 흰색의 중간색.
 				Color.Lerp(this.GetComponent<Renderer>().material.color, Color.white, 0.5f);
-			Color color1 = // 현재 색과 검은색의 중간 색.
+			Color color1 = // 현재 색과 검은색의 중간색.
 				Color.Lerp(this.GetComponent<Renderer>().material.color, Color.black, 0.5f);
 			// 발화 연출 시간의 절반을 지났다면.
 			if (this.vanish_timer < Block.VANISH_TIME / 2.0f)
@@ -259,7 +264,7 @@ public class BlockControl : MonoBehaviour
 				// 투명도(a)를 설정.
 				color0.a = this.vanish_timer / (Block.VANISH_TIME / 2.0f);
 				color1.a = color0.a;
-				// 반투명 머티리얼을 적용. 
+				//  반투명 머티리얼을 적용. 
 				this.GetComponent<Renderer>().material = this.transparent_material;
 			}
 			// vanish_timer가 줄어들 수록 1에 가까워진다.
@@ -318,8 +323,8 @@ public class BlockControl : MonoBehaviour
 		bool is_grabbable = false;
 		switch (this.step)
 		{
-			case Block.STEP.IDLE: // 대기 상태일 때만.
-				is_grabbable = true; // true(잡을 수 있다)를 반환한다.
+			case Block.STEP.IDLE: // 「대기」상태일 때만.
+				is_grabbable = true; // true（잡을 수 있다）를 반환한다.
 				break;
 		}
 		return (is_grabbable);
@@ -421,8 +426,11 @@ public class BlockControl : MonoBehaviour
 
 	public void toVanishing()
 	{
-		//  '사라질 때까지 걸리는 시간'을 규정치로 리셋.
-		this.vanish_timer = Block.VANISH_TIME;
+		// 사라질 때까지 걸리는 시간을 규정치로 리셋.
+		// this.vanish_timer = Block.VANISH_TIME;
+		// 현재 레벨의 연소시간으로 설정.
+		float vanish_time = this.block_root.level_control.getVanishTime();
+		this.vanish_timer = vanish_time;
 	}
 
 	public bool isVanishing()
@@ -434,8 +442,11 @@ public class BlockControl : MonoBehaviour
 
 	public void rewindVanishTimer()
 	{
-		// '사라질 때까지 걸리는 시간'을 규정치로 리셋.
-		this.vanish_timer = Block.VANISH_TIME;
+		// 사라질 때까지 걸리는 시간을 규정치로 리셋.
+		// this.vanish_timer = Block.VANISH_TIME;
+		// 현재 레벨의 연소시간으로 설정.
+		float vanish_time = this.block_root.level_control.getVanishTime();
+		this.vanish_timer = vanish_time;
 	}
 
 	public bool isVisible()
@@ -481,10 +492,15 @@ public class BlockControl : MonoBehaviour
 			(float)(start_ipos_y - this.i_pos.y) *
 				Block.COLLISION_SIZE;
 		this.next_step = Block.STEP.FALL;
-		int color_index =
-			Random.Range((int)Block.COLOR.FIRST,
-						 (int)Block.COLOR.LAST + 1);
-		this.setColor((Block.COLOR)color_index);
+
+
+		// int color_index = Random.Range(
+		// (int)Block.COLOR.FIRST, (int)Block.COLOR.LAST + 1);
+		// this.setColor((Block.COLOR)color_index);
+		// 현재 레벨의 출현 확률을 바탕으로 블록의 색을 결정한다.
+		Block.COLOR color = this.block_root.selectBlockColor();
+		this.setColor(color);
+
 	}
 
 	public bool isVacant()
@@ -504,4 +520,3 @@ public class BlockControl : MonoBehaviour
 	}
 
 }
-

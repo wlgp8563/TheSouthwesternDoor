@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class SceneControl : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class SceneControl : MonoBehaviour
 		NONE = -1, // 상태 정보 없음.
 		PLAY = 0, // 플레이 중.
 		CLEAR, // 클리어.
-		NUM, // 상태의 종류가 몇 개인지 나타낸다(= 2).
+		NUM, // 상태가 몇 종류인지 나타낸다(=2).
 	};
 	public STEP step = STEP.NONE; // 현재 상태.
 	public STEP next_step = STEP.NONE; // 다음 상태.
@@ -22,22 +23,37 @@ public class SceneControl : MonoBehaviour
 	private BlockRoot block_root = null;
 	void Start()
 	{
-		// BlockRoot스크립트 가져오기.
+		// BlockRoot 스크립트를 취득.
 		this.block_root = this.gameObject.GetComponent<BlockRoot>();
-		// BlockRoot스크립트의 initialSetUp()을 호출한다.
+
+		this.block_root.create();
+
+		// BlockRoot 스크립트의 initialSetUp()을 호출한다.
 		this.block_root.initialSetUp();
 
-		// ScoreCounter 가져오기
+		// ScoreCounter를 가져온다.
 		this.score_counter = this.gameObject.GetComponent<ScoreCounter>();
 		this.next_step = STEP.PLAY; // 다음 상태를 '플레이 중'으로.
-		this.guistyle.fontSize = 24; // 폰트  크기를 24로.
+		this.guistyle.fontSize = 24; // 폰트 크기를 24로.
 
 	}
 
 	void Update()
 	{
 		this.step_timer += Time.deltaTime;
-		// 상태 변화 대기 -----.
+
+		switch (this.step)
+		{
+			case STEP.CLEAR:
+				if (Input.GetMouseButtonDown(0))
+				{
+					SceneManager.LoadScene("TitleScene");
+				}
+				break;
+		}
+
+
+		// 상태변화대기-----.
 		if (this.next_step == STEP.NONE)
 		{
 			switch (this.step)
@@ -51,7 +67,7 @@ public class SceneControl : MonoBehaviour
 					break;
 			}
 		}
-		// 상태가 변화했다면 ------.
+		// 상태가 변화하면------.
 		while (this.next_step != STEP.NONE)
 		{
 			this.step = this.next_step;
@@ -86,7 +102,7 @@ public class SceneControl : MonoBehaviour
 				// 「☆클리어-！☆」라는 문자열을 표시.
 				GUI.Label(new Rect(
 					Screen.width / 2.0f - 80.0f, 20.0f, 200.0f, 20.0f),
-						  "☆클리어-!☆", guistyle);
+						  "☆클리어-！☆", guistyle);
 				// 클리어 시간을 표시.
 				GUI.Label(new Rect(
 					Screen.width / 2.0f - 80.0f, 40.0f, 200.0f, 20.0f),
@@ -99,4 +115,3 @@ public class SceneControl : MonoBehaviour
 
 
 }
-

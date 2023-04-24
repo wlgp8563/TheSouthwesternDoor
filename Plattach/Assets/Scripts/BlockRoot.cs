@@ -4,14 +4,17 @@ using System.Collections;
 public class BlockRoot : MonoBehaviour
 {
 
-	public GameObject BlockPrefab = null; // 만들어야 할 블록의 Prefab.
+	public GameObject BlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public BlockControl[,] blocks; // 그리드.
 
 	private GameObject main_camera = null; // 메인 카메라.
 	private BlockControl grabbed_block = null; // 잡은 블록.
 
-	private ScoreCounter score_counter = null; // 점수 카운터 ScoreCounter.
-	protected bool is_vanishing_prev = false; // 앞에서 발화했는가?.
+	private ScoreCounter score_counter = null; // ScoreCounter.
+	protected bool is_vanishing_prev = false; // 이전에 발화했었는가?.
+
+	public TextAsset levelData = null; // 레벨 데이터의 텍스트를 저장.
+	public LevelControl level_control; // LevelControl를 저장.
 
 
 	void Start()
@@ -23,14 +26,14 @@ public class BlockRoot : MonoBehaviour
 
 	void Update()
 	{
-		Vector3 mouse_position; // 마우스의 위치.
-		this.unprojectMousePosition( // 마우스의 위치를 가져옴.
+		Vector3 mouse_position; // 마우스 위치.
+		this.unprojectMousePosition( // 마우스 위치를 획득.
 									out mouse_position, Input.mousePosition);
-		// 가져온 마우스 위치를 하나의 Vector2에 저장한다.
+		// 획득한 마우스 위치를 X와 Y만으로 한다.
 		Vector2 mouse_position_xy =
 			new Vector2(mouse_position.x, mouse_position.y);
 		if (this.grabbed_block == null)
-		{ // 잡은 블록이 비어있으면.
+		{ // 블록을 잡지 않았을 때.
 			if (!this.is_has_falling_block())
 			{
 				if (Input.GetMouseButtonDown(0))
@@ -39,13 +42,13 @@ public class BlockRoot : MonoBehaviour
 					foreach (BlockControl block in this.blocks)
 					{
 						if (!block.isGrabbable())
-						{ // 블록을 잡을 수 없다면.
-							continue; // 루프의 맨 앞으로 점프.
+						{ // 블록을 잡을 수 없으면.
+							continue; // 다음 블록으로.
 						}
 						// 마우스 위치가 블록 영역 안에 없으면.
 						if (!block.isContainedPosition(mouse_position_xy))
 						{
-							continue; // 루프의 맨 앞으로 점프.
+							continue; // 다음 블록으로.
 						}
 						// 처리 중인 블록을 grabbed_block에 등록.
 						this.grabbed_block = block;
@@ -57,31 +60,31 @@ public class BlockRoot : MonoBehaviour
 			}
 		}
 		else
-		{ // 잡은 블록이 비어있지 않으면.
+		{ // 블록을 잡고 있을 때.
 
 
 			do
 			{
-				// 슬라이드할 곳의 블록을 획득.
+				// 슬라이드할 곳의 블록을 가져온다.
 				BlockControl swap_target =
 					this.getNextBlock(grabbed_block, grabbed_block.slide_dir);
-				// 슬라이드할 곳의 블록이 비었으면.
+				// 슬라이드할 곳 블록이 비어 있다면.
 				if (swap_target == null)
 				{
-					break; // 루프 탈출.
+					break; // 루프 탈출. 
 				}
-				// 슬라이드할 곳의 블록이 잡을 수 있는 상태가 아니면.
+				// 슬라이드할 곳 블록을 잡을 수 있는 상태가 아니라면.
 				if (!swap_target.isGrabbable())
 				{
-					break; // 루프 탈출.
+					break; // 루프 탈출. 
 				}
-				// 현재 위치에서 슬라이드할 곳까지의 거리를 구한다.
+				//  현재 위치에서 슬라이드할 곳까지의 거리를 구한다.
 				float offset = this.grabbed_block.calcDirOffset(
 					mouse_position_xy, this.grabbed_block.slide_dir);
-				// 이동 거리가 블록 크기의 절반보다 작으면.
+				// 이동 거리가 블록 크기의 절반보다 작다면 .
 				if (offset < Block.COLLISION_SIZE / 2.0f)
 				{
-					break; // 루프 탈출.
+					break; // 루프 탈출. 
 				}
 				// 블록을 교체한다.
 				this.swapBlock(
@@ -92,9 +95,9 @@ public class BlockRoot : MonoBehaviour
 
 
 			if (!Input.GetMouseButton(0))
-			{ // 마우스 버튼이 눌려있지 않으면.
-				this.grabbed_block.endGrab(); // 블록을 놓았을 때 처리를 실행.
-				this.grabbed_block = null; // grabbed_block를 비어 있게 설정.
+			{ // 마우스 버튼이 눌려져 있지 않으면.
+				this.grabbed_block.endGrab(); // 블록을 놓았을 때의 처리를 실행.
+				this.grabbed_block = null; //  grabbed_block을 비게 설정.
 			}
 		}
 
@@ -121,29 +124,29 @@ public class BlockRoot : MonoBehaviour
 				}
 			}
 			if (ignite_count > 0)
-			{ // 점화 수가 0보다 크면.
+			{ // 발화 수가 0보다 크면.
 
 				if (!this.is_vanishing_prev)
 				{
-					// 연속 점화가 아니라면, 점화 횟수를 리셋.
+					// 직전에 연쇄가 아니라면 발화 횟수 리셋.
 					this.score_counter.clearIgniteCount();
 				}
-				// 점화 횟수를 증가한다.
+				// 발화 횟수를 늘린다.
 				this.score_counter.addIgniteCount(ignite_count);
-				// 합계 점수 갱신.
+				// 합계 스코어 갱신.
 				this.score_counter.updateTotalScore();
 
 
 
-				// = 한 군데라도 짝이 맞으면.
+				// ＝한 군데라도 맞춰진 곳이 있으면.
 				int block_count = 0; // 발화 중인 블록 수(다음 장에서 사용한다).
 									 // 그리드 내의 모든 블록에 대해서 처리.
 				foreach (BlockControl block in this.blocks)
 				{
 					if (block.isVanishing())
-					{ // 발화 중(계속 타고 있는 중)이면.
+					{ // 발화중（점점 사라진다）이면.
 						block.rewindVanishTimer(); // 재발화！.
-						block_count++; // 발화 중인 블록 개수를 증가.
+						block_count++; // 발화 중인 블록의 개수를 증가.
 					}
 				}
 			}
@@ -151,20 +154,20 @@ public class BlockRoot : MonoBehaviour
 
 		// 하나라도 연소 중인 블록이 있는가?.
 		bool is_vanishing = this.is_has_vanishing_block();
-		// 조건이 충족되면 블록을 떨어뜨리고 싶다.
+		// 조건을 만족하면 블록을 떨어뜨리고 싶다.
 		do
 		{
 			if (is_vanishing)
-			{ // 연소 중인 블록이 있으면.
-				break; // 낙하 처리른 하지 않는다.
+			{ // 연소 중인 블록이 있다면.
+				break; // 낙하 처리를 실행하지 않는다.
 			}
 			if (this.is_has_sliding_block())
-			{ // 교체 중인 블록이 있으면.
-				break; // 낙하 처리는 하지 않는다.
+			{ // 교체 중인 블록이 있다면.
+				break; // 낙하 처리를 실행하지 않는다.
 			}
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{
-				// 열에 교체 중인 블록이 있으면 그 열은 처리하지 않고 다음 열로 넘어간다.
+				// 열에 교체 중인 블록이 있다면, 그 열은 처리하지 않고 다음 열로 진행한다.
 				if (this.is_has_sliding_block_in_column(x))
 				{
 					continue;
@@ -172,7 +175,7 @@ public class BlockRoot : MonoBehaviour
 				// 그 열에 있는 블록을 위에서부터 검사.
 				for (int y = 0; y < Block.BLOCK_NUM_Y - 1; y++)
 				{
-					// 지정 중인 블록이 비표시면 다음 블록으로.
+					// 지정 중인 블록이 비표시라면, 다음 블록으로.
 					if (!this.blocks[x, y].isVacant())
 					{
 						continue;
@@ -180,25 +183,25 @@ public class BlockRoot : MonoBehaviour
 					// 지정 중인 블록 아래에 있는 블록을 검사.
 					for (int y1 = y + 1; y1 < Block.BLOCK_NUM_Y; y1++)
 					{
-						// 아래에 있는 블록이 비표시면 다음 블록으로.
+						// 아래에 있는 블록이 비표시라면, 다음 블록으로.
 						if (this.blocks[x, y1].isVacant())
 						{
 							continue;
 						}
-						// 블록을 교체한다.
+						//  블록을 교체한다.
 						this.fallBlock(this.blocks[x, y], Block.DIR4.UP,
 									   this.blocks[x, y1]);
 						break;
 					}
 				}
 			}
-			// 보충 처리.
+			// 보충처리.
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{
 				int fall_start_y = Block.BLOCK_NUM_Y;
 				for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
 				{
-					// 비표시 블록이 아니면 다음 블록으로.
+					// 비표시 블록이 아니라면 다음 블록으로.
 					if (!this.blocks[x, y].isVacant())
 					{
 						continue;
@@ -216,40 +219,49 @@ public class BlockRoot : MonoBehaviour
 
 
 
-	// 블록을 만들어 내서 가로 9칸 세로 9칸으로 배치.
+	// 블록을 만들어 내고, 가로 아홉 칸 세로 아홉 칸으로 배치.
 	public void initialSetUp()
 	{
-		// 칸의 크기를 9×9로 한다.
+		// 크기는 9×9로 한다.
 		this.blocks =
 			new BlockControl[Block.BLOCK_NUM_X, Block.BLOCK_NUM_Y];
 		// 블록의 색 번호.
 		int color_index = 0;
+
+		Block.COLOR color = Block.COLOR.FIRST;
+
+
 		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
-		{ // 시작행부터 마지막행까지.
+		{ // 처음행부터 시작행부터 마지막행까지.
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
-			{// 왼쪽 끝에서 오른쪽 끝까지.
-			 // BlockPrefab의 인스턴스를 씬 상에 만든다.
+			{// 왼쪽 끝에서부터 오른쪽 끝까지.
+			 // BlockPrefab의 인스턴스를 씬 위에 만든다.
 				GameObject game_object =
 					Instantiate(this.BlockPrefab) as GameObject;
-				// 위에서 만든 블록의 BlockControl 클래스를 얻는다.
+				// 위에서 만든 블록의 BlockControl 클래스를 가져온다.
 				BlockControl block = game_object.GetComponent<BlockControl>();
-				// 블록을 칸에 저장.
+				// 블록을 칸에 넣는다.
 				this.blocks[x, y] = block;
 				// 블록의 위치 정보(그리드 좌표)를 설정.
 				block.i_pos.x = x;
 				block.i_pos.y = y;
 				// 각 BlockControl이 연계하는 GameRoot는 자신이라고 설정.
 				block.block_root = this;
-				// 그리드 좌표를 실제 위치(씬 상의 좌표)로 변환.
+				// 그리드 좌표를 실제 위치(씬 좌표)로 변환.
 				Vector3 position = BlockRoot.calcBlockPosition(block.i_pos);
 				// 씬 상의 블록 위치를 이동.
 				block.transform.position = position;
-				// 블록의 색을 변경.
-				block.setColor((Block.COLOR)color_index);
+
+				// 블록의 색을 변경. 
+				// block.setColor((Block.COLOR)color_index);
+				// 지금의 출현 확률을 바탕으로 색을 결정한다.
+				color = this.selectBlockColor();
+				block.setColor(color);
+
 				// 블록의 이름을 설정(후술).
 				block.name = "block(" + block.i_pos.x.ToString() +
 					"," + block.i_pos.y.ToString() + ")";
-				// 모든 종류의 색 중에서 랜덤하게 한 색을 선택.
+				// 모든 종류의 색 중에서 임의로 한 색을 선택.
 				color_index =
 					Random.Range(0, (int)Block.COLOR.NORMAL_COLOR_NUM);
 			}
@@ -257,31 +269,31 @@ public class BlockRoot : MonoBehaviour
 	}
 
 
-	// 지정된 그리드 좌표에서 씬 상의 좌표를 구한다.
+	// 지정된 그리드 좌표에서 씬 상의 좌표를 구한다. 
 	public static Vector3 calcBlockPosition(Block.iPosition i_pos)
 	{
-		// 배치할 왼쪽 상단 모서리 위치를 초깃값으로 설정한다.
+		// 배치할 좌측 상단 모퉁이 위치를 초깃값으로 설정.
 		Vector3 position = new Vector3(-(Block.BLOCK_NUM_X / 2.0f - 0.5f),
 									   -(Block.BLOCK_NUM_Y / 2.0f - 0.5f), 0.0f);
-		// 초깃값＋그리드 좌표×블록 크기.
+		// 초깃값＋그리드 좌표 × 블록 크기.
 		position.x += (float)i_pos.x * Block.COLLISION_SIZE;
 		position.y += (float)i_pos.y * Block.COLLISION_SIZE;
-		return (position); // 씬 상의 좌표를 반환한다.
+		return (position); // 씬의 좌표를 반환한다.
 	}
 
 
 	public bool unprojectMousePosition(out Vector3 world_position, Vector3 mouse_position)
 	{
 		bool ret;
-		// 판을 생성. 이 판은 카메라에 대해서 뒤쪽 방향(Vector3.back)에서.
-		// 블록의 절반크기만큼 앞에 둔다.
+		// 판을 생성. 이 판은 카메라에서 보이는 면이 앞.
+		// 블록의 절반 크기만큼 앞으로 놓인다.
 		Plane plane = new Plane(Vector3.back, new Vector3(
 			0.0f, 0.0f, -Block.COLLISION_SIZE / 2.0f));
-		// 카메라와 마우스를 통과하는 광선을 작성.
+		// 카메라와 마우스를 통과하는 광선을 생성.
 		Ray ray = this.main_camera.GetComponent<Camera>().ScreenPointToRay(
 			mouse_position);
 		float depth;
-		// 광선(ray）이 판（plane）에 닿았다면.
+		// 광선 ray가 판 plane에 닿았다면.
 		if (plane.Raycast(ray, out depth))
 		{
 			// 인수 world_position을 마우스 위치로 덮어쓴다.
@@ -304,33 +316,33 @@ public class BlockRoot : MonoBehaviour
 	public BlockControl getNextBlock(
 		BlockControl block, Block.DIR4 dir)
 	{
-		// 슬라이드할 곳의 블록을 이곳에 저장.
+		// 슬라이드할 곳의 블록을 여기에 저장.
 		BlockControl next_block = null;
 		switch (dir)
 		{
 			case Block.DIR4.RIGHT:
 				if (block.i_pos.x < Block.BLOCK_NUM_X - 1)
 				{
-					// 그리드 내라면.
+					// 그리드 안이라면.
 					next_block = this.blocks[block.i_pos.x + 1, block.i_pos.y];
 				}
 				break;
 
 			case Block.DIR4.LEFT:
 				if (block.i_pos.x > 0)
-				{ // 그리드 내라면.
+				{ // 그리드 안이라면.
 					next_block = this.blocks[block.i_pos.x - 1, block.i_pos.y];
 				}
 				break;
 			case Block.DIR4.UP:
 				if (block.i_pos.y < Block.BLOCK_NUM_Y - 1)
-				{ // 그리드 내라면.
+				{ // 그리드 안이라면.
 					next_block = this.blocks[block.i_pos.x, block.i_pos.y + 1];
 				}
 				break;
 			case Block.DIR4.DOWN:
 				if (block.i_pos.y > 0)
-				{ // 그리드 내라면.
+				{ // 그리드 안이라면.
 					next_block = this.blocks[block.i_pos.x, block.i_pos.y - 1];
 				}
 				break;
@@ -343,12 +355,12 @@ public class BlockRoot : MonoBehaviour
 		Vector3 v = Vector3.zero;
 		switch (dir)
 		{
-			case Block.DIR4.RIGHT: v = Vector3.right; break; // 오른쪽으로 1단위 움직인다.
-			case Block.DIR4.LEFT: v = Vector3.left; break; // 왼쪽으로 1단위 움직인다.
-			case Block.DIR4.UP: v = Vector3.up; break; // 위로 1단위 움직인다.
-			case Block.DIR4.DOWN: v = Vector3.down; break; // 아래로 1단위 움직인다.
+			case Block.DIR4.RIGHT: v = Vector3.right; break; // 오른쪽으로 1단위 이동한다.
+			case Block.DIR4.LEFT: v = Vector3.left; break; // 왼쪽으로 1단위 이동한다.
+			case Block.DIR4.UP: v = Vector3.up; break; // 위로 1단위 이동한다.
+			case Block.DIR4.DOWN: v = Vector3.down; break; // 아래로 1단위 이동한다.
 		}
-		v *= Block.COLLISION_SIZE; // 블록의 크기를 곱한다.
+		v *= Block.COLLISION_SIZE; // 블록 크기를 곱한다.
 		return (v);
 	}
 
@@ -369,7 +381,7 @@ public class BlockRoot : MonoBehaviour
 
 	public void swapBlock(BlockControl block0, Block.DIR4 dir, BlockControl block1)
 	{
-		// 각 블록 색을 기억해 둔다.
+		// 각 블록의 색을 기억해 둔다.
 		Block.COLOR color0 = block0.color;
 		Block.COLOR color1 = block1.color;
 		// 각 블록의.
@@ -378,20 +390,20 @@ public class BlockRoot : MonoBehaviour
 			block0.transform.localScale;
 		Vector3 scale1 =
 			block1.transform.localScale;
-		// 각 블럭의 '소멸시간'을 기억해 둔다.
+		//  각 블록의 '사라지는 시간'을 기억해 둔다.
 		float vanish_timer0 = block0.vanish_timer;
 		float vanish_timer1 = block1.vanish_timer;
-		// 각 블록의 이동처를 구한다..
+		// 각 블록이 이동할 곳을 구한다.
 		Vector3 offset0 = BlockRoot.getDirVector(dir);
 		Vector3 offset1 = BlockRoot.getDirVector(BlockRoot.getOppositDir(dir));
-		block0.setColor(color1); // 색을 교체한다.
+		block0.setColor(color1); //  색을 교체한다.
 		block1.setColor(color0);
 		block0.transform.localScale = scale1; // 확대율을 교체한다.
 		block1.transform.localScale = scale0;
-		block0.vanish_timer = vanish_timer1; // 「소멸시간」을 교체한다.
+		block0.vanish_timer = vanish_timer1; // 사라지는 시간을 교체한다.
 		block1.vanish_timer = vanish_timer0;
 		block0.beginSlide(offset0); // 원래 블록의 이동을 시작.
-		block1.beginSlide(offset1); // 이동할 곳의 블록의 이동을 시작.
+		block1.beginSlide(offset1); // 이동할 곳의 블록 이동을 시작.
 	}
 
 
@@ -399,7 +411,7 @@ public class BlockRoot : MonoBehaviour
 	{
 		bool ret = false;
 		int normal_block_num = 0;
-		// 인수의 블록이 발화 후가 아니라면.
+		// 인수인 블록이 발화 후가 아니면.
 		if (!start.isVanishing())
 		{
 			normal_block_num = 1;
@@ -407,7 +419,7 @@ public class BlockRoot : MonoBehaviour
 		// 그리드 좌표를 기억해 둔다.
 		int rx = start.i_pos.x;
 		int lx = start.i_pos.x;
-		// 블록의 왼쪽을 체크.
+		// 블록의 왼쪽을 검사.
 		for (int x = lx - 1; x > 0; x--)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.y];
@@ -426,12 +438,12 @@ public class BlockRoot : MonoBehaviour
 				break; // 루프 탈출.
 			}
 			if (!next_block.isVanishing())
-			{ // 발화 중이 아니라면.
+			{ // 발화 중이 아니면.
 				normal_block_num++; // 검사용 카운터를 증가.
 			}
 			lx = x;
 		}
-		// 블록의 오른쪽을 체크.
+		// 블록의 오른쪽을 검사.
 		for (int x = rx + 1; x < Block.BLOCK_NUM_X; x++)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.y];
@@ -457,8 +469,8 @@ public class BlockRoot : MonoBehaviour
 		}
 		do
 		{
-			// 오른쪽 블록의 그리드 번호 - 왼쪽 블록의 그리드 번호＋.
-			// 중앙 블록（1）을 더한 수가 3미만이면.
+			// 오른쪽 블록의 그리드 번호 - 왼쪽 블록의 그리드 번호 +.
+			// 중앙 블록(1)을 더한 수가 3미만 이면.
 			if (rx - lx + 1 < 3)
 			{
 				break; // 루프 탈출.
@@ -469,7 +481,7 @@ public class BlockRoot : MonoBehaviour
 			}
 			for (int x = lx; x < rx + 1; x++)
 			{
-				// 완성된 같은 색 블록을 발화 상태로.
+				// 나열된 같은 색 블록을 발화 상태로.
 				this.blocks[x, start.i_pos.y].toVanishing();
 				ret = true;
 			}
@@ -595,7 +607,7 @@ public class BlockRoot : MonoBehaviour
 	public void fallBlock(
 		BlockControl block0, Block.DIR4 dir, BlockControl block1)
 	{
-		// block0과 block1의 색, 크기, 소멸 시간, 표시/비표시, 상태를 기록.
+		// block0과 block1의 색, 크기, 사라질 때까지 걸리는 시간, 표시, 비표시, 상태를 기록.
 		Block.COLOR color0 = block0.color;
 		Block.COLOR color1 = block1.color;
 		Vector3 scale0 = block0.transform.localScale;
@@ -606,7 +618,7 @@ public class BlockRoot : MonoBehaviour
 		bool visible1 = block1.isVisible();
 		Block.STEP step0 = block0.step;
 		Block.STEP step1 = block1.step;
-		// block0과 block1의 각 속성을 교체한다.
+		// block0과 block1의 각종 속성을 교체한다.
 		block0.setColor(color1);
 		block1.setColor(color0);
 		block0.transform.localScale = scale1;
@@ -628,7 +640,7 @@ public class BlockRoot : MonoBehaviour
 		{
 			if (this.blocks[x, y].isSliding())
 			{ // 슬라이드 중인 블록이 있으면.
-				ret = true; // true를 반환한다.
+				ret = true; // true를 반환한다. 
 				break;
 			}
 		}
@@ -637,8 +649,38 @@ public class BlockRoot : MonoBehaviour
 
 
 
-
-
+	public void create()
+	{
+		this.level_control = new LevelControl();
+		this.level_control.initialize(); // 레벨 데이터 초기화.
+		this.level_control.loadLevelData(this.levelData); // 데이터 읽기.
+		this.level_control.selectLevel(); // 레벨 선택.
+	}
+	public Block.COLOR selectBlockColor()
+	{
+		Block.COLOR color = Block.COLOR.FIRST;
+		// 이번 레벨의 레벨 데이터를 가져온다.
+		LevelData level_data =
+			this.level_control.getCurrentLevelData();
+		float rand = Random.Range(0.0f, 1.0f); // 0.0~1.0 사이의 난수.
+		float sum = 0.0f; // 출현 확률의 합계.
+		int i = 0;
+		// 블록의 종류 전체를 처리하는 루프.
+		for (i = 0; i < level_data.probability.Length - 1; i++)
+		{
+			if (level_data.probability[i] == 0.0f)
+			{
+				continue; // 출현 확률이 0이면 루프의 처음으로 점프.
+			}
+			sum += level_data.probability[i]; // 출현 확률을 더한다.
+			if (rand < sum)
+			{ // 합계가 난숫값을 웃돌면.
+				break; // 루프를 빠져나온다.
+			}
+		}
+		color = (Block.COLOR)i; // i번째 색을 반환한다.
+		return (color);
+	}
 
 
 
