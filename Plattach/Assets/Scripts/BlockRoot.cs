@@ -3,7 +3,6 @@ using System.Collections;
 
 public class BlockRoot : MonoBehaviour
 {
-
 	public GameObject BlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public BlockControl[,] blocks; // 그리드.
 
@@ -16,6 +15,9 @@ public class BlockRoot : MonoBehaviour
 	public TextAsset levelData = null; // 레벨 데이터의 텍스트를 저장.
 	public LevelControl level_control; // LevelControl를 저장.
 
+	private int mGap;
+	private int mRow;
+	private int mColumn;
 
 	void Start()
 	{
@@ -220,8 +222,11 @@ public class BlockRoot : MonoBehaviour
 
 
 	// 블록을 만들어 내고, 가로 아홉 칸 세로 아홉 칸으로 배치.
-	public void initialSetUp()
+	public void initialSetUp(int gap, int row, int column)
 	{
+		mGap = gap;
+		mRow = row;
+		mColumn = column;
 		// 크기는 9×9로 한다.
 		this.blocks =
 			new BlockControl[Block.BLOCK_NUM_X, Block.BLOCK_NUM_Y];
@@ -229,7 +234,6 @@ public class BlockRoot : MonoBehaviour
 		int color_index = 0;
 
 		Block.COLOR color = Block.COLOR.FIRST;
-
 
 		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
 		{ // 처음행부터 시작행부터 마지막행까지.
@@ -243,7 +247,11 @@ public class BlockRoot : MonoBehaviour
 				// 블록을 칸에 넣는다.
 				this.blocks[x, y] = block;
 				// 블록의 위치 정보(그리드 좌표)를 설정.
-				block.i_pos.x = x;
+				if (x > mColumn)
+					block.i_pos.x = x + mGap;
+				else
+					block.i_pos.x = x;
+
 				block.i_pos.y = y;
 				// 각 BlockControl이 연계하는 GameRoot는 자신이라고 설정.
 				block.block_root = this;
@@ -268,6 +276,27 @@ public class BlockRoot : MonoBehaviour
 		}
 	}
 
+	public void horizontalSplitSetUp()
+	{
+		Debug.Log("horizontalSplitSetUp 실행");
+
+		/*for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
+		{ // 처음행부터 시작행부터 마지막행까지.
+			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
+			{// 왼쪽 끝에서부터 오른쪽 끝까지.
+				
+				//현재 블럭의 좌표 저장
+				Vector3 position = this.blocks[x, y].transform.position;
+
+				//0보다 작으면 아래로 내리기
+				if (position.y <= 0)
+                {
+					position.y += 1; //현재 블럭의 y좌표 - 1
+					this.blocks[x, y].transform.position = position; // 씬 상의 블록 위치를 이동.
+				}
+			}
+		}*/
+	}
 
 	// 지정된 그리드 좌표에서 씬 상의 좌표를 구한다. 
 	public static Vector3 calcBlockPosition(Block.iPosition i_pos)
@@ -321,29 +350,43 @@ public class BlockRoot : MonoBehaviour
 		switch (dir)
 		{
 			case Block.DIR4.RIGHT:
-				if (block.i_pos.x < Block.BLOCK_NUM_X - 1)
-				{
-					// 그리드 안이라면.
-					next_block = this.blocks[block.i_pos.x + 1, block.i_pos.y];
+				if (block.i_pos.x < Block.BLOCK_NUM_X - 1 && (mGap==0 || block.i_pos.x != mColumn)) //gap이 0이냐 아니냐에 따른 이동 제한
+				{// 그리드 안이라면.
+					if (block.i_pos.x > mColumn)
+						next_block = this.blocks[block.i_pos.x + 1 - (mGap), block.i_pos.y]; 
+					else
+						next_block = this.blocks[block.i_pos.x + 1, block.i_pos.y];
 				}
 				break;
 
 			case Block.DIR4.LEFT:
 				if (block.i_pos.x > 0)
 				{ // 그리드 안이라면.
-					next_block = this.blocks[block.i_pos.x - 1, block.i_pos.y];
+					if (block.i_pos.x > mColumn)
+                    {
+						if (block.i_pos.x - (mGap) != mColumn + 1 || mGap == 0)
+							next_block = this.blocks[block.i_pos.x - 1 - (mGap), block.i_pos.y]; //gap이 0이냐 아니냐에 따른 이동 제한
+					}
+					else
+						next_block = this.blocks[block.i_pos.x - 1, block.i_pos.y];
 				}
 				break;
 			case Block.DIR4.UP:
 				if (block.i_pos.y < Block.BLOCK_NUM_Y - 1)
 				{ // 그리드 안이라면.
-					next_block = this.blocks[block.i_pos.x, block.i_pos.y + 1];
+					if (block.i_pos.x > mColumn)
+						next_block = this.blocks[block.i_pos.x - (mGap), block.i_pos.y + 1];
+					else
+						next_block = this.blocks[block.i_pos.x, block.i_pos.y + 1];
 				}
 				break;
 			case Block.DIR4.DOWN:
 				if (block.i_pos.y > 0)
 				{ // 그리드 안이라면.
-					next_block = this.blocks[block.i_pos.x, block.i_pos.y - 1];
+					if (block.i_pos.x > mColumn)
+						next_block = this.blocks[block.i_pos.x - (mGap), block.i_pos.y - 1];
+					else
+						next_block = this.blocks[block.i_pos.x, block.i_pos.y - 1];
 				}
 				break;
 		}
@@ -417,8 +460,18 @@ public class BlockRoot : MonoBehaviour
 			normal_block_num = 1;
 		}
 		// 그리드 좌표를 기억해 둔다.
-		int rx = start.i_pos.x;
-		int lx = start.i_pos.x;
+		int rx;
+		int lx;
+		if (start.i_pos.x > mColumn)
+        {
+			rx = start.i_pos.x - (mGap);
+			lx = start.i_pos.x - (mGap);
+		}
+		else
+        {
+			rx = start.i_pos.x;
+			lx = start.i_pos.x;
+		}
 		// 블록의 왼쪽을 검사.
 		for (int x = lx - 1; x > 0; x--)
 		{
@@ -496,7 +549,11 @@ public class BlockRoot : MonoBehaviour
 		// 블록의 위쪽을 검사.
 		for (int y = dy - 1; y > 0; y--)
 		{
-			BlockControl next_block = this.blocks[start.i_pos.x, y];
+			BlockControl next_block;
+			if (start.i_pos.x>mColumn)
+				next_block = this.blocks[start.i_pos.x - (mGap), y];
+			else
+				next_block = this.blocks[start.i_pos.x, y];
 			if (next_block.color != start.color)
 			{
 				break;
@@ -520,7 +577,11 @@ public class BlockRoot : MonoBehaviour
 		// 블록의 아래쪽을 검사.
 		for (int y = uy + 1; y < Block.BLOCK_NUM_Y; y++)
 		{
-			BlockControl next_block = this.blocks[start.i_pos.x, y];
+			BlockControl next_block;
+			if (start.i_pos.x>mColumn)
+				next_block = this.blocks[start.i_pos.x - (mGap), y];
+			else
+				next_block = this.blocks[start.i_pos.x, y];
 			if (next_block.color != start.color)
 			{
 				break;
@@ -553,7 +614,10 @@ public class BlockRoot : MonoBehaviour
 			}
 			for (int y = dy; y < uy + 1; y++)
 			{
-				this.blocks[start.i_pos.x, y].toVanishing();
+				if (start.i_pos.x > mColumn)
+					this.blocks[start.i_pos.x - (mGap), y].toVanishing();
+				else
+					this.blocks[start.i_pos.x, y].toVanishing();
 				ret = true;
 			}
 		} while (false);

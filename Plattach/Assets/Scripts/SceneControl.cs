@@ -4,7 +4,6 @@ using UnityEngine.SceneManagement;
 
 public class SceneControl : MonoBehaviour
 {
-
 	private ScoreCounter score_counter = null;
 	public enum STEP
 	{
@@ -19,6 +18,18 @@ public class SceneControl : MonoBehaviour
 	private float clear_time = 0.0f; // 클리어 시간.
 	public GUIStyle guistyle; // 폰트 스타일.
 
+	[SerializeField]
+	private int gap;
+	[SerializeField]
+	private int row;
+	[SerializeField]
+	private int column;
+	[SerializeField]
+	private int timeLimit;
+	[SerializeField]
+	private float horizontalSplitTime;
+	[SerializeField]
+	private float verticalSplitTime;
 
 	private BlockRoot block_root = null;
 	void Start()
@@ -29,13 +40,12 @@ public class SceneControl : MonoBehaviour
 		this.block_root.create();
 
 		// BlockRoot 스크립트의 initialSetUp()을 호출한다.
-		this.block_root.initialSetUp();
+		this.block_root.initialSetUp(gap, row, column);
 
 		// ScoreCounter를 가져온다.
 		this.score_counter = this.gameObject.GetComponent<ScoreCounter>();
 		this.next_step = STEP.PLAY; // 다음 상태를 '플레이 중'으로.
 		this.guistyle.fontSize = 24; // 폰트 크기를 24로.
-
 	}
 
 	void Update()
@@ -52,7 +62,6 @@ public class SceneControl : MonoBehaviour
 				break;
 		}
 
-
 		// 상태변화대기-----.
 		if (this.next_step == STEP.NONE)
 		{
@@ -63,6 +72,10 @@ public class SceneControl : MonoBehaviour
 					if (this.score_counter.isGameClear())
 					{
 						this.next_step = STEP.CLEAR; // 클리어 상태로 이행.
+					}
+					if(Mathf.CeilToInt(this.step_timer) == horizontalSplitTime)
+                    {
+						block_root.horizontalSplitSetUp();
 					}
 					break;
 			}
@@ -79,9 +92,9 @@ public class SceneControl : MonoBehaviour
 					this.block_root.enabled = false;
 					// 경과 시간을 클리어 시간으로 설정.
 					this.clear_time = this.step_timer;
+					this.step_timer = 0.0f;
 					break;
 			}
-			this.step_timer = 0.0f;
 		}
 	}
 
@@ -91,11 +104,12 @@ public class SceneControl : MonoBehaviour
 		{
 			case STEP.PLAY:
 				GUI.color = Color.black;
-				// 경과 시간을 표시.
+				// 경과 시간과 남은 시간을 표시.
 				GUI.Label(new Rect(40.0f, 10.0f, 200.0f, 20.0f),
-						  "시간" + Mathf.CeilToInt(this.step_timer).ToString() + "초",
+						  "경과 시간" + Mathf.CeilToInt(this.step_timer).ToString() + "초, " + "남은 시간" + (this.timeLimit - Mathf.CeilToInt(this.step_timer)).ToString() + "초",
 						  guistyle);
 				GUI.color = Color.white;
+				GUI.color = Color.black;
 				break;
 			case STEP.CLEAR:
 				GUI.color = Color.black;
