@@ -9,8 +9,11 @@ public class Block
 	public static float VANISH_TIME = 3.0f; // 발화하고 사라지는 시간.
 	public struct iPosition
 	{ // 그리드에서의 좌표를 나타내는 구조체.
-		public int x; // X좌표.
-		public int y; // Y좌표.
+		public int arrX; // X좌표.
+		public int arrY; // Y좌표.
+
+		public int currentX;
+		public int currentY;
 	}
 
 	public enum COLOR
@@ -482,14 +485,14 @@ public class BlockControl : MonoBehaviour
 		this.next_step = Block.STEP.FALL;
 		// 지정된 블록에서 좌표를 계산해 낸다.
 		this.position_offset.y =
-			(float)(start.i_pos.y - this.i_pos.y) * Block.COLLISION_SIZE;
+			(float)(start.i_pos.currentY - this.i_pos.currentY) * Block.COLLISION_SIZE;
 	}
 
 	public void beginRespawn(int start_ipos_y)
 	{
 		// 지정 위치까지 y좌표를 이동.
 		this.position_offset.y =
-			(float)(start_ipos_y - this.i_pos.y) *
+			(float)(start_ipos_y - this.i_pos.currentY) *
 				Block.COLLISION_SIZE;
 		this.next_step = Block.STEP.FALL;
 

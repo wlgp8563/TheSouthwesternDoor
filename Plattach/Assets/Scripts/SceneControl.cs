@@ -42,7 +42,7 @@ public class SceneControl : MonoBehaviour
 		this.block_root.create();
 
 		// BlockRoot 스크립트의 initialSetUp()을 호출한다.
-		this.block_root.initialSetUp(initialGap, row, column);
+		this.block_root.initialSetUp(initialGap, initialGap, row, column);
 
 		// ScoreCounter를 가져온다.
 		this.score_counter = this.gameObject.GetComponent<ScoreCounter>();

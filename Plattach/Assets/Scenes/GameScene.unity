@@ -238,8 +238,8 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-  initialGap: 2
-  changedGap: 0
+  initialGap: 0
+  changedGap: 1
   row: 4
   column: 4
   timeLimit: 210
