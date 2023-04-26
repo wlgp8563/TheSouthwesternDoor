@@ -276,26 +276,72 @@ public class BlockRoot : MonoBehaviour
 		}
 	}
 
-	public void horizontalSplitSetUp()
+	public void verticalSplitSetUp(int gap)
 	{
-		Debug.Log("horizontalSplitSetUp 실행");
-
-		/*for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
+		Debug.Log("verticalSplitSetUp 실행");
+		for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
 		{ // 처음행부터 시작행부터 마지막행까지.
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{// 왼쪽 끝에서부터 오른쪽 끝까지.
+			 // BlockPrefab의 인스턴스로 씬 위에 올라가 있는 애들을 가져온다.
 				
-				//현재 블럭의 좌표 저장
-				Vector3 position = this.blocks[x, y].transform.position;
-
-				//0보다 작으면 아래로 내리기
-				if (position.y <= 0)
-                {
-					position.y += 1; //현재 블럭의 y좌표 - 1
-					this.blocks[x, y].transform.position = position; // 씬 상의 블록 위치를 이동.
+				GameObject game_object = GameObject.Find("block(" + x.ToString() + "," + y.ToString() + ")");
+				if (gap < mGap) // 초기 gap이 새로 바뀔 gap보다 크다 -> 퍼즐판이 떨어져 있는 상태임
+				{
+					if (x > mColumn)
+						game_object = GameObject.Find("block(" + (x + mGap).ToString() + "," + y.ToString() + ")");
+					else
+						game_object = GameObject.Find("block(" + x.ToString() + "," + y.ToString() + ")");
 				}
+				else // 그 외 -> 퍼즐판이 붙어 있는 상태임, 근데 이게 0일지 아닐지 모르니까 보정해줘야됨.. 근데 자꾸 실패해서 일단 주석처리함
+				{
+                    //game_object = GameObject.Find("block(" + x.ToString() + "," + y.ToString() + ")");
+
+                    if (x > mColumn)
+                        game_object = GameObject.Find("block(" + (x + mGap).ToString() + "," + y.ToString() + ")");
+                    else
+                        game_object = GameObject.Find("block(" + x.ToString() + "," + y.ToString() + ")");
+                }
+				// 위에서 가져온 블록의 BlockControl 클래스를 가져온다.
+				if (game_object == null)
+					break;
+				BlockControl block = game_object.GetComponent<BlockControl>();
+
+				// 블록을 칸에 넣는다.
+				//this.blocks[x, y] = block;
+				// 블록의 위치 정보(그리드 좌표)를 설정.
+				if(gap < mGap) // 초기 gap이 새로 바뀔 gap보다 크다 -> x좌표가 줄어들어야 함 (붙기)
+                {
+					if (x > mColumn)
+						block.i_pos.x = block.i_pos.x - (mGap - gap);
+					else
+						block.i_pos.x = x;
+				}
+                else // 그 외 -> x좌표가 늘어나야 함 (쪼개지기)
+                {
+					if (x > mColumn)
+						block.i_pos.x = block.i_pos.x - mGap + gap;
+					else
+						block.i_pos.x = x;
+				}
+				
+
+				block.i_pos.y = y;
+				// 각 BlockControl이 연계하는 GameRoot는 자신이라고 설정.
+				block.block_root = this;
+				// 그리드 좌표를 실제 위치(씬 좌표)로 변환.
+				Vector3 position = BlockRoot.calcBlockPosition(block.i_pos);
+				// 씬 상의 블록 위치를 이동.
+				block.transform.position = position;
+
 			}
-		}*/
+		}
+		mGap = gap;
+	}
+
+	public void horizontalSplitSetUp(int gap)
+	{
+		Debug.Log("horizontalSplitSetUp 실행");
 	}
 
 	// 지정된 그리드 좌표에서 씬 상의 좌표를 구한다. 

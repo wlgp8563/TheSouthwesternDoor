@@ -238,12 +238,13 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-  gap: 1
+  initialGap: 2
+  changedGap: 0
   row: 4
   column: 4
   timeLimit: 210
   horizontalSplitTime: 5
-  verticalSplitTime: 0
+  verticalSplitTime: 10
 --- !u!114 &413390786
 MonoBehaviour:
   m_ObjectHideFlags: 0

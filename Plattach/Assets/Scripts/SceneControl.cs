@@ -19,7 +19,9 @@ public class SceneControl : MonoBehaviour
 	public GUIStyle guistyle; // 폰트 스타일.
 
 	[SerializeField]
-	private int gap;
+	private int initialGap;
+	[SerializeField]
+	private int changedGap;
 	[SerializeField]
 	private int row;
 	[SerializeField]
@@ -40,7 +42,7 @@ public class SceneControl : MonoBehaviour
 		this.block_root.create();
 
 		// BlockRoot 스크립트의 initialSetUp()을 호출한다.
-		this.block_root.initialSetUp(gap, row, column);
+		this.block_root.initialSetUp(initialGap, row, column);
 
 		// ScoreCounter를 가져온다.
 		this.score_counter = this.gameObject.GetComponent<ScoreCounter>();
@@ -75,7 +77,11 @@ public class SceneControl : MonoBehaviour
 					}
 					if(Mathf.CeilToInt(this.step_timer) == horizontalSplitTime)
                     {
-						block_root.horizontalSplitSetUp();
+						block_root.horizontalSplitSetUp(changedGap);
+					}
+					if(Mathf.CeilToInt(this.step_timer) == verticalSplitTime)
+                    {
+						block_root.verticalSplitSetUp(changedGap);
 					}
 					break;
 			}
