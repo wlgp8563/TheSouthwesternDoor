@@ -510,7 +510,7 @@ public class BlockRoot : MonoBehaviour
 		for (int x = lx - 1; x > 0; x--)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.arrY];
-			if (next_block.color != start.color)
+			if (next_block.color != start.color || (mCurrentColumnGap != 0 && next_block.i_pos.arrX == mColumn))
 			{ // 색이 다르면.
 				break; // 루프 탈출.
 			}
@@ -534,7 +534,7 @@ public class BlockRoot : MonoBehaviour
 		for (int x = rx + 1; x < Block.BLOCK_NUM_X; x++)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.arrY];
-			if (next_block.color != start.color)
+			if (next_block.color != start.color || (mCurrentColumnGap != 0 && next_block.i_pos.arrX == mColumn + 1))
 			{
 				break;
 			}
@@ -580,21 +580,21 @@ public class BlockRoot : MonoBehaviour
 		}
 		int uy = start.i_pos.arrY;
 		int dy = start.i_pos.arrY;
-		// 블록의 위쪽을 검사.
+		// 블록의 위쪽을 검사. 라고 쓰여있는데 아래쪽 검사하는 코드인 것 같음!
 		for (int y = dy - 1; y > 0; y--)
 		{
 			BlockControl next_block = this.blocks[start.i_pos.arrX, y];
-			if (next_block.color != start.color) { break; }
+			if (next_block.color != start.color || (mCurrentRowGap != 0 && next_block.i_pos.arrY == mRow)) { break; }
 			if (next_block.step == Block.STEP.FALL || next_block.next_step == Block.STEP.FALL) { break; }
 			if (next_block.step == Block.STEP.SLIDE || next_block.next_step == Block.STEP.SLIDE) { break; }
 			if (!next_block.isVanishing()) { normal_block_num++; }
 			dy = y;
 		}
-		// 블록의 아래쪽을 검사.
+		// 블록의 아래쪽을 검사. 라고 쓰여있는데 위쪽 검사하는 코드인 것 같음!
 		for (int y = uy + 1; y < Block.BLOCK_NUM_Y; y++)
 		{
 			BlockControl next_block = this.blocks[start.i_pos.arrX, y];
-			if (next_block.color != start.color) { break; }
+			if (next_block.color != start.color || (mCurrentRowGap != 0 && next_block.i_pos.arrY == mRow + 1)) { break; }
 			if (next_block.step == Block.STEP.FALL || next_block.next_step == Block.STEP.FALL) { break; }
 			if (next_block.step == Block.STEP.SLIDE || next_block.next_step == Block.STEP.SLIDE) { break; }
 			if (!next_block.isVanishing()) { normal_block_num++; }
