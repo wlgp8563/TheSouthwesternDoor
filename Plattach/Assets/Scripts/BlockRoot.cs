@@ -322,10 +322,10 @@ public class BlockRoot : MonoBehaviour
 
 				// 2스테이지 일때 색에 기반해서 key 블럭(둥근 모양)으로 설정함
 				if (!FreeSwapMode &&
-					(x == 0 && y == Block.BLOCK_NUM_Y - 1) //2사분면의 좌상단 
+					((x == 0 && y == Block.BLOCK_NUM_Y - 1) //2사분면의 좌상단 
 					|| (x == 0 && y == row) //3사분면의 좌상단
 					|| (x == Block.BLOCK_NUM_X - 1 && y == Block.BLOCK_NUM_Y - 1) //1사분면의 우상단
-					|| (x == Block.BLOCK_NUM_X - 1 && y == row)) //4사분면의 우상단
+					|| (x == Block.BLOCK_NUM_X - 1 && y == row))) //4사분면의 우상단
 				{
 					game_object =
 					Instantiate(this.KeyBlockPrefab) as GameObject;

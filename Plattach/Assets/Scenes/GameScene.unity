@@ -243,8 +243,8 @@ MonoBehaviour:
   row: 4
   column: 4
   timeLimit: 210
-  horizontalSplitTime: 5000
-  verticalSplitTime: 10000
+  horizontalSplitTime: 5
+  verticalSplitTime: 10
 --- !u!114 &413390786
 MonoBehaviour:
   m_ObjectHideFlags: 0
