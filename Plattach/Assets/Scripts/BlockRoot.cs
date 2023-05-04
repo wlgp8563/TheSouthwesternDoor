@@ -223,6 +223,7 @@ public class BlockRoot : MonoBehaviour
 					{
 						continue;
 					}
+					this.blocks[x, y].GetComponent<MeshFilter>().sharedMesh = BlockPrefab.GetComponent<MeshFilter>().sharedMesh;
 					this.blocks[x, y].beginRespawn(fall_start_y); // 블록 부활.
 					fall_start_y++;
 				}
