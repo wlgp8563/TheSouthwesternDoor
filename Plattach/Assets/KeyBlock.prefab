@@ -108,6 +108,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a53bb1fe790069147800af25a1197dbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  BlockPrefab: {fileID: 4535115986040934498, guid: f990ccf1c78490a43a064206c540e905, type: 3}
+  KeyBlockPrefab: {fileID: 7342059818349174485}
   color: 0
   block_root: {fileID: 0}
   step: -1

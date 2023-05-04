@@ -3,8 +3,7 @@ using System.Collections;
 
 public class BlockRoot : MonoBehaviour
 {
-	[SerializeField]
-	private bool FreeSwapMode;
+	public bool FreeSwapMode;
 
 	public GameObject BlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public GameObject KeyBlockPrefab = null; // 만들어 낼 블록의 프리팹.
@@ -98,10 +97,14 @@ public class BlockRoot : MonoBehaviour
 				this.swapBlock(
 					grabbed_block, grabbed_block.slide_dir, swap_target);
 
-				// 지연 후 블럭이 발화중인지 아닌지 체크해주기 위해 코루틴 사용
-				// 블럭을 sawp했을 때 match되지 않으면 블럭의 위치를 되돌리기 위한 함수 호출
-				if(!FreeSwapMode)
+                // 2스테이지인 경우
+                if (!FreeSwapMode)
+                {
+					// 지연 후 블럭이 발화중인지 아닌지 체크해주기 위해 코루틴 사용
+					// 블럭을 sawp했을 때 match되지 않으면 블럭의 위치를 되돌리기 위한 함수 호출
+					// 코루틴 함수 안에서 키 블럭을 삭제할 수 있을지 확인하는 함수를 호출함
 					StartCoroutine(swapBackBlock(grabbed_block, swap_target));
+				}
 
 				this.grabbed_block = null; // 지금은 블록을 잡고 있지 않다.
 			} while (false);
@@ -250,9 +253,47 @@ public class BlockRoot : MonoBehaviour
 			this.swapBlock(
 			swap_target, grabbed_block.slide_dir, grabbed_block);
 		}
+
+		checkKeyBlock(grabbed_block, swap_target);
 	}
 
+	public void checkKeyBlock(BlockControl block0, BlockControl block1)
+	{
+		if (mCurrentRowGap == 0) //horizontal split 상태가 아닐때
+		{
+			if (block0.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				block0.i_pos.arrY == 0)
+			{
+				block0.toVanishing();
+				score_counter.minusGoalKeyCount();
+			}
 
+			if (block1.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				block1.i_pos.arrY == 0)
+			{
+				block1.toVanishing();
+				score_counter.minusGoalKeyCount();
+			}
+		}
+		else //horizontal split 상태일때
+		{
+			if (block0.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				(block0.i_pos.arrY == 0 ||
+				block0.i_pos.arrY == mRow + 1))
+			{
+				block0.toVanishing();
+				score_counter.minusGoalKeyCount();
+			}
+
+			if (block1.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				(block1.i_pos.arrY == 0 ||
+				block1.i_pos.arrY == mRow + 1))
+			{
+				block1.toVanishing();
+				score_counter.minusGoalKeyCount();
+			}
+		}
+	}
 
 	// 블록을 만들어 내고, 가로 아홉 칸 세로 아홉 칸으로 배치.
 	public void initialSetUp(int startRowGap, int startColumnGap, int row, int column)
@@ -771,6 +812,8 @@ public class BlockRoot : MonoBehaviour
 		//메쉬 필터를 통한 외형 변경
 		block0.GetComponent<MeshFilter>().sharedMesh = block1Mesh;
 		block1.GetComponent<MeshFilter>().sharedMesh = block0Mesh;
+
+		checkKeyBlock(block0, block1); //떨어지는 애들 키 블럭 체크
 	}
 
 
