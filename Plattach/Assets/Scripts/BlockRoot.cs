@@ -495,6 +495,7 @@ public class BlockRoot : MonoBehaviour
 	public bool checkConnection(BlockControl start)
 	{
 		bool ret = false;
+		bool squ = false;  //square 정사각형모양이 되는지 안되는지 체크하기 위한 bool값으로 처음에는 false로 시작해 정사각형 되면 true로 바꾼다 
 		int normal_block_num = 0;
 		// 인수인 블록이 발화 후가 아니면.
 		if (!start.isVanishing())
@@ -557,7 +558,7 @@ public class BlockRoot : MonoBehaviour
 		do
 		{
 			// 오른쪽 블록의 그리드 번호 - 왼쪽 블록의 그리드 번호 +.
-			// 중앙 블록(1)을 더한 수가 3미만 이면.
+			// 중앙 블록(1)을 더한 수가 3미만 이면, 
 			if (rx - lx + 1 < 3)
 			{
 				break; // 루프 탈출.
@@ -610,7 +611,27 @@ public class BlockRoot : MonoBehaviour
 				ret = true;
 			}
 		} while (false);
-		return (ret);
+        do  //여기다가 2X2퍼즐 맞는지 따로 do-while문으로 if문 넣었음
+        {
+			if(rx - lx + 1 < 2 && uy - dy + 1 < 2)           //가로 2칸 세로2칸 동시 가능이면
+            {
+				break;
+            }
+			if(normal_block_num == 0)
+            {
+				break;
+            }
+			for(int x = lx; x < rx + 1; x++)
+            {
+				for(int y = dy; y < uy + 1; y++)
+                {
+					this.blocks[x, y].toVanishing();
+					ret = true;
+					squ = true;
+				}
+			}
+        } while(false)
+		return (ret)(squ);
 	}
 
 
