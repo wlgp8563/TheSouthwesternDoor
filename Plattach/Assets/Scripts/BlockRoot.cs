@@ -3,6 +3,9 @@ using System.Collections;
 
 public class BlockRoot : MonoBehaviour
 {
+	[SerializeField]
+	private bool FreeSwapMode;
+
 	public GameObject BlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public BlockControl[,] blocks; // 그리드.
 
@@ -93,6 +96,12 @@ public class BlockRoot : MonoBehaviour
 				// 블록을 교체한다.
 				this.swapBlock(
 					grabbed_block, grabbed_block.slide_dir, swap_target);
+
+				// 지연 후 블럭이 발화중인지 아닌지 체크해주기 위해 코루틴 사용
+				// 블럭을 sawp했을 때 match되지 않으면 블럭의 위치를 되돌리기 위한 함수 호출
+				if(!FreeSwapMode)
+					StartCoroutine(swapBackBlock(grabbed_block, swap_target));
+
 				this.grabbed_block = null; // 지금은 블록을 잡고 있지 않다.
 			} while (false);
 
@@ -219,7 +228,28 @@ public class BlockRoot : MonoBehaviour
 	}
 
 
+	IEnumerator swapBackBlock(BlockControl grabbed_block, BlockControl swap_target)
+	{
+		// 이미 발화되고 있던 애들이랑은 swap을 못하게 막기 위해
+		// 이미 발화되고 있는 애들은 기다리지 않고 바로 swap back 해줌
+		if (grabbed_block.isVanishing() || swap_target.isVanishing())
+        {
+			this.swapBlock(
+			swap_target, grabbed_block.slide_dir, grabbed_block);
+			yield break; //코루틴 빠져나감
+		}
 
+		// 대기 시간
+		yield return new WaitForSeconds(0.3f);
+
+		// 교체된 블럭이 모두 발화중이 아니라면 되돌려놓음
+		// 즉, 블럭을 sawp했을 때 sawp된 블럭 둘 중 하나라도 발화중이라면 되돌려놓지 않음
+		if (!grabbed_block.isVanishing() && !swap_target.isVanishing())
+		{
+			this.swapBlock(
+			swap_target, grabbed_block.slide_dir, grabbed_block);
+		}
+	}
 
 
 
@@ -490,7 +520,6 @@ public class BlockRoot : MonoBehaviour
 		block0.beginSlide(offset0); // 원래 블록의 이동을 시작.
 		block1.beginSlide(offset1); // 이동할 곳의 블록 이동을 시작.
 	}
-
 
 	public bool checkConnection(BlockControl start)
 	{
