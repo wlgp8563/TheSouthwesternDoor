@@ -122,7 +122,7 @@ public class BlockRoot : MonoBehaviour
 					continue; // 다음 블록을 처리한다.
 				}
 				// 세로 또는 가로에 같은 색 블록이 세 개 이상 나열했다면.
-				if (this.checkConnection(block))
+				if (this.checkConnection(block) || this.checkfourmatch(block))
 				{
 					ignite_count++; // 발화 수를 증가.
 				}
@@ -491,11 +491,196 @@ public class BlockRoot : MonoBehaviour
 		block1.beginSlide(offset1); // 이동할 곳의 블록 이동을 시작.
 	}
 
+	public bool checkfourmatch(BlockControl start)
+    {
+		bool ret = false;
+		bool squ = false;
+		//bool midche = false;
+
+		int normal_block_num = 0;
+		// 인수인 블록이 발화 후가 아니면.
+		if (!start.isVanishing())
+		{
+			normal_block_num = 1;
+		}
+		// 그리드 좌표를 기억해 둔다.
+		int rx;
+		int lx;
+		rx = start.i_pos.arrX;
+		lx = start.i_pos.arrX;
+		// 블록의 왼쪽을 검사.
+		for (int x = lx - 1; x > 0; x--)
+		{
+			BlockControl next_block = this.blocks[x, start.i_pos.arrY];
+			if (next_block.color != start.color || (mCurrentColumnGap != 0 && next_block.i_pos.arrX == mColumn))
+			{ // 색이 다르면.
+				break; // 루프 탈출.
+			}
+			if (next_block.step == Block.STEP.FALL || // 낙하 중이면.
+			   next_block.next_step == Block.STEP.FALL)
+			{
+				break; // 루프 탈출.
+			}
+			if (next_block.step == Block.STEP.SLIDE || // 슬라이드 중이면.
+			   next_block.next_step == Block.STEP.SLIDE)
+			{
+				break; // 루프 탈출.
+			}
+			if (!next_block.isVanishing())
+			{ // 발화 중이 아니면.
+				normal_block_num++; // 검사용 카운터를 증가.
+			}
+			lx = x;
+		}
+		// 블록의 오른쪽을 검사.
+		for (int x = rx + 1; x < Block.BLOCK_NUM_X; x++)
+		{
+			BlockControl next_block = this.blocks[x, start.i_pos.arrY];
+			if (next_block.color != start.color || (mCurrentColumnGap != 0 && next_block.i_pos.arrX == mColumn + 1))
+			{
+				break;
+			}
+			if (next_block.step == Block.STEP.FALL ||
+			   next_block.next_step == Block.STEP.FALL)
+			{
+				break;
+			}
+			if (next_block.step == Block.STEP.SLIDE ||
+			   next_block.next_step == Block.STEP.SLIDE)
+			{
+				break;
+			}
+			if (!next_block.isVanishing())
+			{
+				normal_block_num++;
+			}
+			rx = x;
+		}
+
+		normal_block_num = 0;
+		if (!start.isVanishing())
+		{
+			normal_block_num = 1;
+		}
+		int uy = start.i_pos.arrY;
+		int dy = start.i_pos.arrY;
+		// 블록의 위쪽을 검사. 라고 쓰여있는데 아래쪽 검사하는 코드인 것 같음!
+		for (int y = dy - 1; y > 0; y--)
+		{
+			BlockControl next_block = this.blocks[start.i_pos.arrX, y];
+			if (next_block.color != start.color || (mCurrentRowGap != 0 && next_block.i_pos.arrY == mRow)) { break; }
+			if (next_block.step == Block.STEP.FALL || next_block.next_step == Block.STEP.FALL) { break; }
+			if (next_block.step == Block.STEP.SLIDE || next_block.next_step == Block.STEP.SLIDE) { break; }
+			if (!next_block.isVanishing()) { normal_block_num++; }
+			dy = y;
+		}
+		// 블록의 아래쪽을 검사. 라고 쓰여있는데 위쪽 검사하는 코드인 것 같음!
+		for (int y = uy + 1; y < Block.BLOCK_NUM_Y; y++)
+		{
+			BlockControl next_block = this.blocks[start.i_pos.arrX, y];
+			if (next_block.color != start.color || (mCurrentRowGap != 0 && next_block.i_pos.arrY == mRow + 1)) { break; }
+			if (next_block.step == Block.STEP.FALL || next_block.next_step == Block.STEP.FALL) { break; }
+			if (next_block.step == Block.STEP.SLIDE || next_block.next_step == Block.STEP.SLIDE) { break; }
+			if (!next_block.isVanishing()) { normal_block_num++; }
+			uy = y;
+		}
+		/*do
+		{
+			if ((rx - lx + 1 == 2 && uy - dy + 1 == 2) && this.blocks[lx, dy].color == this.blocks[lx, dy + 1].color
+				&& this.blocks[lx, dy].color == this.blocks[lx + 1, dy].color && this.blocks[lx, dy].color == this.blocks[lx + 1, dy + 1].color)
+			{
+				this.blocks[lx, dy].toVanishing();
+				this.blocks[lx, dy + 1].toVanishing();
+				this.blocks[lx + 1, dy].toVanishing();
+				this.blocks[lx + 1, dy + 1].toVanishing();
+				ret = true;
+				squ = true;
+			}
+			else if ((rx - lx + 1 < 2 && uy - dy + 1 < 2) || rx - lx + 1 < 2 || uy - dy + 1 < 2)
+			{
+				break;
+			}
+			else if (normal_block_num == 0)
+			{
+				break;
+			}
+			else
+			{
+				// move on to the next block
+				lx++;
+				rx++;
+				if (rx >= Block.BLOCK_NUM_X) break;
+			}
+		} while (true);*/
+
+		do  //여기다가 2X2퍼즐 맞는지 따로 do-while문으로 if문 넣었음
+		{
+			if (((rx - lx + 1 != 2) || (uy - dy + 1 != 2)) || ((rx - lx + 1 != 2) && (uy - dy + 1 != 2)) || ((rx - lx + 1 <= 2) && (uy - dy + 1 <= 2)) || (rx - lx + 1 < 2) || (uy - dy + 1 < 2))           //가로 2칸 세로2칸 동시 안가능이면
+			{
+				break;
+			}
+			if (normal_block_num == 0)
+			{
+				break;
+			}
+			for (int x = lx; x < rx + 1; x++)
+			{
+				for (int y = dy; y < uy + 1; y++)
+				{
+					this.blocks[x, y].toVanishing();
+					ret = true;
+					squ = true;
+				}
+			}
+		} while (false);
+
+		/*do
+		{
+			if ((rx - lx + 1 < 2 && uy - dy + 1 < 2) || rx - lx + 1 < 2 || uy - dy + 1 < 2)
+			{
+				break;
+			}
+			if (normal_block_num == 0)
+			{
+				break;
+			}
+
+			bool hasMatchingPuzzle = false;
+
+			for (int x = lx; x < rx; x++)
+			{
+				for (int y = dy; y < uy; y++)
+				{
+					if (this.blocks[x, y].color == this.blocks[x + 1, y].color &&
+						this.blocks[x, y].color == this.blocks[x, y + 1].color &&
+						this.blocks[x, y].color == this.blocks[x + 1, y + 1].color)
+					{
+						// 2x2 매치 발견
+						this.blocks[x, y].toVanishing();
+						this.blocks[x + 1, y].toVanishing();
+						this.blocks[x, y + 1].toVanishing();
+						this.blocks[x + 1, y + 1].toVanishing();
+
+						hasMatchingPuzzle = true;
+						ret = true;
+						squ = true;
+					}
+				}
+			}
+
+			// 만약 매치가 발견되지 않았다면 루프를 종료합니다.
+			if (!hasMatchingPuzzle)
+			{
+				break;
+			}
+		} while (true);*/
+		return (ret);
+	}
 
 	public bool checkConnection(BlockControl start)
 	{
 		bool ret = false;
-		bool squ = false;  //square 정사각형모양이 되는지 안되는지 체크하기 위한 bool값으로 처음에는 false로 시작해 정사각형 되면 true로 바꾼다 
+		//bool squ = false;  //square 정사각형모양이 되는지 안되는지 체크하기 위한 bool값으로 처음에는 false로 시작해 정사각형 되면 true로 바꾼다 
 		int normal_block_num = 0;
 		// 인수인 블록이 발화 후가 아니면.
 		if (!start.isVanishing())
@@ -561,6 +746,7 @@ public class BlockRoot : MonoBehaviour
 			// 중앙 블록(1)을 더한 수가 3미만 이면, 
 			if (rx - lx + 1 < 3)
 			{
+				//체크하는 문을 써서
 				break; // 루프 탈출.
 			}
 			if (normal_block_num == 0)
@@ -574,6 +760,7 @@ public class BlockRoot : MonoBehaviour
 				ret = true;
 			}
 		} while (false);
+
 		normal_block_num = 0;
 		if (!start.isVanishing())
 		{
@@ -611,27 +798,46 @@ public class BlockRoot : MonoBehaviour
 				ret = true;
 			}
 		} while (false);
-        do  //여기다가 2X2퍼즐 맞는지 따로 do-while문으로 if문 넣었음
-        {
-			if(rx - lx + 1 < 2 && uy - dy + 1 < 2)           //가로 2칸 세로2칸 동시 가능이면
-            {
+
+		/*do
+		{
+			if ((rx - lx + 1 < 2 && uy - dy + 1 < 2) || rx - lx + 1 < 2 || uy - dy + 1 < 2) // 이 부분 변경
+			{
 				break;
-            }
-			if(normal_block_num == 0)
-            {
+			}
+			if (normal_block_num == 0)
+			{
 				break;
-            }
-			for(int x = lx; x < rx + 1; x++)
-            {
-				for(int y = dy; y < uy + 1; y++)
-                {
-					this.blocks[x, y].toVanishing();
-					ret = true;
-					squ = true;
+			}
+
+			bool isTwoByTwo = (rx - lx + 1 == 2 && uy - dy + 1 == 2); // 추가
+			if (isTwoByTwo) // 추가
+			{
+				// 2*2 매치의 경우 블록을 모두 삭제하고, ret과 squ도 true로 설정합니다.
+				for (int x = lx; x < rx + 1; x++)
+				{
+					for (int y = dy; y < uy + 1; y++)
+					{
+						this.blocks[x, y].toVanishing();
+					}
+				}
+				ret = true;
+				squ = true;
+			}
+			else // 2*2 매치가 아닌 경우 기존의 코드를 실행합니다.
+			{
+				for (int x = lx; x < rx + 1; x++)
+				{
+					for (int y = dy; y < uy + 1; y++)
+					{
+						this.blocks[x, y].toVanishing();
+						ret = true;
+						squ = true;
+					}
 				}
 			}
-        } while(false)
-		return (ret)(squ);
+		} while (false);*/
+		return (ret);
 	}
 
 
