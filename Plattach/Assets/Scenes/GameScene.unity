@@ -273,6 +273,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6eb6a54055b784946a850cbb7eff1ca9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  feverTimeCount: 0
   guistyle:
     m_Name: 
     m_Normal:
@@ -340,7 +341,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-  goalKeyBlock: 4
+  goalKeyBlock: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

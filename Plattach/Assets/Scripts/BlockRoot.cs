@@ -596,8 +596,6 @@ public class BlockRoot : MonoBehaviour
 		block0.beginSlide(offset0); // 원래 블록의 이동을 시작.
 		block1.beginSlide(offset1); // 이동할 곳의 블록 이동을 시작.
 	}
-
-<<<<<<< HEAD
 	public bool checkfourmatch(BlockControl start)
     {
 		bool ret = false;
@@ -784,8 +782,6 @@ public class BlockRoot : MonoBehaviour
 		return (ret);
 	}
 
-=======
->>>>>>> 1471caa632b4a0a66bfcdf2ceb258ced79727304
 	public bool checkConnection(BlockControl start)
 	{
 		bool ret = false;
