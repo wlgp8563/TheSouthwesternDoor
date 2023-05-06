@@ -3,7 +3,10 @@ using System.Collections;
 
 public class BlockRoot : MonoBehaviour
 {
+	public bool FreeSwapMode;
+
 	public GameObject BlockPrefab = null; // 만들어 낼 블록의 프리팹.
+	public GameObject KeyBlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public BlockControl[,] blocks; // 그리드.
 
 	private GameObject main_camera = null; // 메인 카메라.
@@ -93,6 +96,16 @@ public class BlockRoot : MonoBehaviour
 				// 블록을 교체한다.
 				this.swapBlock(
 					grabbed_block, grabbed_block.slide_dir, swap_target);
+
+                // 2스테이지인 경우
+                if (!FreeSwapMode)
+                {
+					// 지연 후 블럭이 발화중인지 아닌지 체크해주기 위해 코루틴 사용
+					// 블럭을 sawp했을 때 match되지 않으면 블럭의 위치를 되돌리기 위한 함수 호출
+					// 코루틴 함수 안에서 키 블럭을 삭제할 수 있을지 확인하는 함수를 호출함
+					StartCoroutine(swapBackBlock(grabbed_block, swap_target));
+				}
+
 				this.grabbed_block = null; // 지금은 블록을 잡고 있지 않다.
 			} while (false);
 
@@ -210,6 +223,7 @@ public class BlockRoot : MonoBehaviour
 					{
 						continue;
 					}
+					this.blocks[x, y].GetComponent<MeshFilter>().sharedMesh = BlockPrefab.GetComponent<MeshFilter>().sharedMesh;
 					this.blocks[x, y].beginRespawn(fall_start_y); // 블록 부활.
 					fall_start_y++;
 				}
@@ -219,9 +233,68 @@ public class BlockRoot : MonoBehaviour
 	}
 
 
+	IEnumerator swapBackBlock(BlockControl grabbed_block, BlockControl swap_target)
+	{
+		// 이미 발화되고 있던 애들이랑은 swap을 못하게 막기 위해
+		// 이미 발화되고 있는 애들은 기다리지 않고 바로 swap back 해줌
+		if (grabbed_block.isVanishing() || swap_target.isVanishing())
+        {
+			this.swapBlock(
+			swap_target, grabbed_block.slide_dir, grabbed_block);
+			yield break; //코루틴 빠져나감
+		}
 
+		// 대기 시간
+		yield return new WaitForSeconds(0.3f);
 
+		// 교체된 블럭이 모두 발화중이 아니라면 되돌려놓음
+		// 즉, 블럭을 sawp했을 때 sawp된 블럭 둘 중 하나라도 발화중이라면 되돌려놓지 않음
+		if (!grabbed_block.isVanishing() && !swap_target.isVanishing())
+		{
+			this.swapBlock(
+			swap_target, grabbed_block.slide_dir, grabbed_block);
+		}
 
+		checkKeyBlock(grabbed_block, swap_target);
+	}
+
+	public void checkKeyBlock(BlockControl block0, BlockControl block1)
+	{
+		if (mCurrentRowGap == 0) //horizontal split 상태가 아닐때
+		{
+			if (block0.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				block0.i_pos.arrY == 0)
+			{
+				block0.toVanishing();
+				score_counter.minusGoalKeyCount();
+			}
+
+			if (block1.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				block1.i_pos.arrY == 0)
+			{
+				block1.toVanishing();
+				score_counter.minusGoalKeyCount();
+			}
+		}
+		else //horizontal split 상태일때
+		{
+			if (block0.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				(block0.i_pos.arrY == 0 ||
+				block0.i_pos.arrY == mRow + 1))
+			{
+				block0.toVanishing();
+				score_counter.minusGoalKeyCount();
+			}
+
+			if (block1.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				(block1.i_pos.arrY == 0 ||
+				block1.i_pos.arrY == mRow + 1))
+			{
+				block1.toVanishing();
+				score_counter.minusGoalKeyCount();
+			}
+		}
+	}
 
 	// 블록을 만들어 내고, 가로 아홉 칸 세로 아홉 칸으로 배치.
 	public void initialSetUp(int startRowGap, int startColumnGap, int row, int column)
@@ -243,12 +316,35 @@ public class BlockRoot : MonoBehaviour
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{// 왼쪽 끝에서부터 오른쪽 끝까지.
 			 // BlockPrefab의 인스턴스를 씬 위에 만든다.
-				GameObject game_object =
+				color = this.selectBlockColor();
+				GameObject game_object;
+				BlockControl block;
+
+				// 2스테이지 일때 색에 기반해서 key 블럭(둥근 모양)으로 설정함
+				if (!FreeSwapMode &&
+					((x == 0 && y == Block.BLOCK_NUM_Y - 1) //2사분면의 좌상단 
+					|| (x == 0 && y == row) //3사분면의 좌상단
+					|| (x == Block.BLOCK_NUM_X - 1 && y == Block.BLOCK_NUM_Y - 1) //1사분면의 우상단
+					|| (x == Block.BLOCK_NUM_X - 1 && y == row))) //4사분면의 우상단
+				{
+					game_object =
+					Instantiate(this.KeyBlockPrefab) as GameObject;
+					// 위에서 만든 블록의 BlockControl 클래스를 가져온다.
+					block = game_object.GetComponent<BlockControl>();
+					// 블록을 칸에 넣는다.
+					this.blocks[x, y] = block;
+
+					color = Block.COLOR.YELLOW; //안쓰는 색인 노란색으로 색을 정함
+				}
+                else
+                {
+					game_object =
 					Instantiate(this.BlockPrefab) as GameObject;
-				// 위에서 만든 블록의 BlockControl 클래스를 가져온다.
-				BlockControl block = game_object.GetComponent<BlockControl>();
-				// 블록을 칸에 넣는다.
-				this.blocks[x, y] = block;
+					// 위에서 만든 블록의 BlockControl 클래스를 가져온다.
+					block = game_object.GetComponent<BlockControl>();
+					// 블록을 칸에 넣는다.
+					this.blocks[x, y] = block;
+				}
 				
 				// 블록의 배열을 위한 좌표 (인덱스) 를 설정.
 				block.i_pos.arrX = x;
@@ -276,9 +372,9 @@ public class BlockRoot : MonoBehaviour
 				// 블록의 색을 변경. 
 				// block.setColor((Block.COLOR)color_index);
 				// 지금의 출현 확률을 바탕으로 색을 결정한다.
-				color = this.selectBlockColor();
+				/*color = this.selectBlockColor();
+				block.setColor(color);*/
 				block.setColor(color);
-
 				// 블록의 이름을 설정(후술).
 				block.name = "block(" + block.i_pos.arrX.ToString() +
 					"," + block.i_pos.arrY.ToString() + ")";
@@ -469,6 +565,11 @@ public class BlockRoot : MonoBehaviour
 		// 각 블록의 색을 기억해 둔다.
 		Block.COLOR color0 = block0.color;
 		Block.COLOR color1 = block1.color;
+
+		// 각 블록의 메쉬를 기억해 둔다
+		Mesh block0Mesh = block0.gameObject.GetComponent<MeshFilter>().sharedMesh;
+		Mesh block1Mesh = block1.gameObject.GetComponent<MeshFilter>().sharedMesh;
+
 		// 각 블록의.
 		// 확대율을 기억해 둔다.
 		Vector3 scale0 =
@@ -483,6 +584,11 @@ public class BlockRoot : MonoBehaviour
 		Vector3 offset1 = BlockRoot.getDirVector(BlockRoot.getOppositDir(dir));
 		block0.setColor(color1); //  색을 교체한다.
 		block1.setColor(color0);
+
+		//메쉬 필터를 통한 외형 변경
+		block0.GetComponent<MeshFilter>().sharedMesh = block1Mesh;
+		block1.GetComponent<MeshFilter>().sharedMesh = block0Mesh;
+
 		block0.transform.localScale = scale1; // 확대율을 교체한다.
 		block1.transform.localScale = scale0;
 		block0.vanish_timer = vanish_timer1; // 사라지는 시간을 교체한다.
@@ -491,6 +597,7 @@ public class BlockRoot : MonoBehaviour
 		block1.beginSlide(offset1); // 이동할 곳의 블록 이동을 시작.
 	}
 
+<<<<<<< HEAD
 	public bool checkfourmatch(BlockControl start)
     {
 		bool ret = false;
@@ -677,6 +784,8 @@ public class BlockRoot : MonoBehaviour
 		return (ret);
 	}
 
+=======
+>>>>>>> 1471caa632b4a0a66bfcdf2ceb258ced79727304
 	public bool checkConnection(BlockControl start)
 	{
 		bool ret = false;
@@ -696,6 +805,10 @@ public class BlockRoot : MonoBehaviour
 		for (int x = lx - 1; x > 0; x--)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.arrY];
+			if(FreeSwapMode&& next_block.color==Block.COLOR.YELLOW) //2스테이지에서 key block이면
+            {
+				break; //루프 탈출
+            }
 			if (next_block.color != start.color || (mCurrentColumnGap != 0 && next_block.i_pos.arrX == mColumn))
 			{ // 색이 다르면.
 				break; // 루프 탈출.
@@ -720,6 +833,10 @@ public class BlockRoot : MonoBehaviour
 		for (int x = rx + 1; x < Block.BLOCK_NUM_X; x++)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.arrY];
+			if (FreeSwapMode && next_block.color == Block.COLOR.YELLOW) //2스테이지에서 key block이면
+			{
+				break; //루프 탈출
+			}
 			if (next_block.color != start.color || (mCurrentColumnGap != 0 && next_block.i_pos.arrX == mColumn + 1))
 			{
 				break;
@@ -772,6 +889,10 @@ public class BlockRoot : MonoBehaviour
 		for (int y = dy - 1; y > 0; y--)
 		{
 			BlockControl next_block = this.blocks[start.i_pos.arrX, y];
+			if (FreeSwapMode && next_block.color == Block.COLOR.YELLOW) //2스테이지에서 key block이면
+			{
+				break; //루프 탈출
+			}
 			if (next_block.color != start.color || (mCurrentRowGap != 0 && next_block.i_pos.arrY == mRow)) { break; }
 			if (next_block.step == Block.STEP.FALL || next_block.next_step == Block.STEP.FALL) { break; }
 			if (next_block.step == Block.STEP.SLIDE || next_block.next_step == Block.STEP.SLIDE) { break; }
@@ -782,6 +903,10 @@ public class BlockRoot : MonoBehaviour
 		for (int y = uy + 1; y < Block.BLOCK_NUM_Y; y++)
 		{
 			BlockControl next_block = this.blocks[start.i_pos.arrX, y];
+			if(FreeSwapMode&& next_block.color==Block.COLOR.YELLOW) //2스테이지에서 key block이면
+            {
+				break; //루프 탈출
+            }
 			if (next_block.color != start.color || (mCurrentRowGap != 0 && next_block.i_pos.arrY == mRow + 1)) { break; }
 			if (next_block.step == Block.STEP.FALL || next_block.next_step == Block.STEP.FALL) { break; }
 			if (next_block.step == Block.STEP.SLIDE || next_block.next_step == Block.STEP.SLIDE) { break; }
@@ -898,6 +1023,11 @@ public class BlockRoot : MonoBehaviour
 		bool visible1 = block1.isVisible();
 		Block.STEP step0 = block0.step;
 		Block.STEP step1 = block1.step;
+
+		// 각 블록의 메쉬를 기억해 둔다
+		Mesh block0Mesh = block0.gameObject.GetComponent<MeshFilter>().sharedMesh;
+		Mesh block1Mesh = block1.gameObject.GetComponent<MeshFilter>().sharedMesh;
+
 		// block0과 block1의 각종 속성을 교체한다.
 		block0.setColor(color1);
 		block1.setColor(color0);
@@ -910,6 +1040,12 @@ public class BlockRoot : MonoBehaviour
 		block0.step = step1;
 		block1.step = step0;
 		block0.beginFall(block1);
+
+		//메쉬 필터를 통한 외형 변경
+		block0.GetComponent<MeshFilter>().sharedMesh = block1Mesh;
+		block1.GetComponent<MeshFilter>().sharedMesh = block0Mesh;
+
+		checkKeyBlock(block0, block1); //떨어지는 애들 키 블럭 체크
 	}
 
 

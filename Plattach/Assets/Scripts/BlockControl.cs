@@ -65,7 +65,6 @@ public class Block
 
 public class BlockControl : MonoBehaviour
 {
-
 	public Block.COLOR color = (Block.COLOR)0; // 블록 색.
 	public BlockRoot block_root = null; // 블록의 신.
 	public Block.iPosition i_pos; // 블록 좌표.
@@ -503,7 +502,6 @@ public class BlockControl : MonoBehaviour
 		// 현재 레벨의 출현 확률을 바탕으로 블록의 색을 결정한다.
 		Block.COLOR color = this.block_root.selectBlockColor();
 		this.setColor(color);
-
 	}
 
 	public bool isVacant()

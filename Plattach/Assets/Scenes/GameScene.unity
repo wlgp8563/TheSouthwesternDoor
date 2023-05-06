@@ -238,8 +238,8 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-  initialGap: 0
-  changedGap: 1
+  initialGap: 1
+  changedGap: 0
   row: 4
   column: 4
   timeLimit: 210
@@ -257,7 +257,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 86ec28db0da24e34ca5c047f2a84938c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FreeSwapMode: 0
   BlockPrefab: {fileID: 4535115986040934498, guid: f990ccf1c78490a43a064206c540e905, type: 3}
+  KeyBlockPrefab: {fileID: 7342059818349174485, guid: e9bd3d1a0f3c4194687facf125f86f0c, type: 3}
   levelData: {fileID: 4900000, guid: f77fec06cd1aa6d4aa6dff5caed3f751, type: 3}
 --- !u!114 &413390787
 MonoBehaviour:
@@ -338,6 +340,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
+  goalKeyBlock: 4
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

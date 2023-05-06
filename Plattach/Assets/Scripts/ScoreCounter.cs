@@ -17,10 +17,14 @@ public class ScoreCounter : MonoBehaviour
 	//public static int FEVER_SCORE = 1000;
 	//private int score_multiplier = 1;
 	public GUIStyle guistyle; // 폰트 스타일.
+	
+	public int goalKeyBlock; //key block을 없앨 목표치
 
-
+	private BlockRoot block_root = null;
+	
 	void Start()
 	{
+		this.block_root = this.gameObject.GetComponent<BlockRoot>(); 
 		this.last.ignite = 0;
 		this.last.score = 0;
 		this.last.total_socre = 0;
@@ -39,7 +43,17 @@ public class ScoreCounter : MonoBehaviour
 		y += 30;
 		this.print_value(x + 20, y, "합계 스코어", this.last.total_socre);
 		y += 30;
+<<<<<<< HEAD
 		this.print_value(x + 20, y, "피버타임게이지", this.last.fever_score);
+=======
+
+		if(!this.block_root.FreeSwapMode)
+        {
+			//남은 키 블럭 UI에 표시
+			this.print_value(x + 20, y, "남은 키 블럭", this.goalKeyBlock);
+			y += 30;
+		}
+>>>>>>> 1471caa632b4a0a66bfcdf2ceb258ced79727304
 	}
 	public void print_value(int x, int y, string label, int value)
 	{
@@ -58,6 +72,10 @@ public class ScoreCounter : MonoBehaviour
 	public void clearIgniteCount()
 	{
 		this.last.ignite = 0; // 발화 횟수를 리셋.
+	}
+	public void minusGoalKeyCount()
+	{
+		this.goalKeyBlock -= 1; // 삭제해야할 key block의 목표치를 감소시킴
 	}
 	private void update_score()
 	{
