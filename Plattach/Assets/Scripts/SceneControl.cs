@@ -5,12 +5,15 @@ using UnityEngine.SceneManagement;
 public class SceneControl : MonoBehaviour
 {
 	private ScoreCounter score_counter = null;
+	private MoveCounter move_counter = null;
+	private TargetCounter target_counter = null;
 	public enum STEP
 	{
 		NONE = -1, // 상태 정보 없음.
 		PLAY = 0, // 플레이 중.
 		CLEAR, // 클리어.
 		NUM, // 상태가 몇 종류인지 나타낸다(=2).
+		FAIL,
 	};
 	public STEP step = STEP.NONE; // 현재 상태.
 	public STEP next_step = STEP.NONE; // 다음 상태.
@@ -29,9 +32,9 @@ public class SceneControl : MonoBehaviour
 	[SerializeField]
 	private int timeLimit;
 	[SerializeField]
-	private float horizontalSplitTime;
+	private float horizontalSplitMoves; //남은 이동 횟수가 몇이여야 horizontalSplit 할건지?
 	[SerializeField]
-	private float verticalSplitTime;
+	private float verticalSplitMoves; //남은 이동 횟수가 verticalSplit 할건지?
 
 	private BlockRoot block_root = null;
 	void Start()
@@ -46,6 +49,13 @@ public class SceneControl : MonoBehaviour
 
 		// ScoreCounter를 가져온다.
 		this.score_counter = this.gameObject.GetComponent<ScoreCounter>();
+
+		// MoveCounter를 가져온다.
+		this.move_counter = this.gameObject.GetComponent<MoveCounter>();
+		
+		// MoveCounter를 가져온다.
+		this.target_counter = this.gameObject.GetComponent<TargetCounter>();
+
 		this.next_step = STEP.PLAY; // 다음 상태를 '플레이 중'으로.
 		this.guistyle.fontSize = 24; // 폰트 크기를 24로.
 	}
@@ -62,6 +72,13 @@ public class SceneControl : MonoBehaviour
 					SceneManager.LoadScene("TitleScene");
 				}
 				break;
+
+			case STEP.FAIL:
+				if (Input.GetMouseButtonDown(0))
+				{
+					SceneManager.LoadScene("FailScene");
+				}
+				break;
 		}
 
 		// 상태변화대기-----.
@@ -71,15 +88,23 @@ public class SceneControl : MonoBehaviour
 			{
 				case STEP.PLAY:
 					// 클리어 조건을 만족하면.
-					if (this.score_counter.isGameClear())
+					/*if (this.score_counter.isGameClear())
+					{
+						this.next_step = STEP.CLEAR; // 클리어 상태로 이행.
+					}*/
+					if (this.target_counter.isTargetClear())
 					{
 						this.next_step = STEP.CLEAR; // 클리어 상태로 이행.
 					}
-					if(Mathf.CeilToInt(this.step_timer) == horizontalSplitTime)
+					if (this.move_counter.isLeftMovesZero()) //나중에 && !this.TargetCounter.isTargetClear() 넣기
+					{
+						this.next_step = STEP.FAIL;
+					}
+					if(this.move_counter.getLeftMoves() == horizontalSplitMoves)
                     {
 						block_root.horizontalSplitSetUp(changedGap);
 					}
-					if(Mathf.CeilToInt(this.step_timer) == verticalSplitTime)
+					if(this.move_counter.getLeftMoves() == verticalSplitMoves)
                     {
 						block_root.verticalSplitSetUp(changedGap);
 					}
@@ -110,9 +135,9 @@ public class SceneControl : MonoBehaviour
 		{
 			case STEP.PLAY:
 				GUI.color = Color.black;
-				// 경과 시간과 남은 시간을 표시.
+				// 경과 시간을 표시.
 				GUI.Label(new Rect(40.0f, 10.0f, 200.0f, 20.0f),
-						  "경과 시간" + Mathf.CeilToInt(this.step_timer).ToString() + "초, " + "남은 시간" + (this.timeLimit - Mathf.CeilToInt(this.step_timer)).ToString() + "초",
+						  "경과 시간" + Mathf.CeilToInt(this.step_timer).ToString() + "초",
 						  guistyle);
 				GUI.color = Color.white;
 				GUI.color = Color.black;

@@ -4,15 +4,20 @@ using System.Collections;
 public class BlockRoot : MonoBehaviour
 {
 	public bool FreeSwapMode;
+	public bool KeyMode;
+	public bool YarnMode;
 
 	public GameObject BlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public GameObject KeyBlockPrefab = null; // 만들어 낼 블록의 프리팹.
+	public GameObject YarnBlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public BlockControl[,] blocks; // 그리드.
 
 	private GameObject main_camera = null; // 메인 카메라.
 	private BlockControl grabbed_block = null; // 잡은 블록.
 
 	private ScoreCounter score_counter = null; // ScoreCounter.
+	private MoveCounter move_counter = null; // MoveCounter.
+	private TargetCounter target_counter = null; // TargetCounter.
 	protected bool is_vanishing_prev = false; // 이전에 발화했었는가?.
 
 	public TextAsset levelData = null; // 레벨 데이터의 텍스트를 저장.
@@ -28,6 +33,8 @@ public class BlockRoot : MonoBehaviour
 	{
 		this.main_camera = GameObject.FindGameObjectWithTag("MainCamera");
 		this.score_counter = this.gameObject.GetComponent<ScoreCounter>();
+		this.move_counter = this.gameObject.GetComponent<MoveCounter>();
+		this.target_counter = this.gameObject.GetComponent<TargetCounter>();
 	}
 
 
@@ -48,7 +55,7 @@ public class BlockRoot : MonoBehaviour
 				  // blocks 배열의 모든 요소를 차례로 처리한다.
 					foreach (BlockControl block in this.blocks)
 					{
-						if (!block.isGrabbable())
+						if (!block.isGrabbable() || block.isYarn()) //털실은 grab 자체를 못하게 함
 						{ // 블록을 잡을 수 없으면.
 							continue; // 다음 블록으로.
 						}
@@ -81,7 +88,7 @@ public class BlockRoot : MonoBehaviour
 					break; // 루프 탈출. 
 				}
 				// 슬라이드할 곳 블록을 잡을 수 있는 상태가 아니라면.
-				if (!swap_target.isGrabbable())
+				if (!swap_target.isGrabbable() || swap_target.isYarn()) //털실과는 swap을 못하게 함
 				{
 					break; // 루프 탈출. 
 				}
@@ -97,13 +104,17 @@ public class BlockRoot : MonoBehaviour
 				this.swapBlock(
 					grabbed_block, grabbed_block.slide_dir, swap_target);
 
-                // 2스테이지인 경우
-                if (!FreeSwapMode)
-                {
+				// 2스테이지인 경우
+				if (!FreeSwapMode)
+				{
 					// 지연 후 블럭이 발화중인지 아닌지 체크해주기 위해 코루틴 사용
 					// 블럭을 sawp했을 때 match되지 않으면 블럭의 위치를 되돌리기 위한 함수 호출
 					// 코루틴 함수 안에서 키 블럭을 삭제할 수 있을지 확인하는 함수를 호출함
 					StartCoroutine(swapBackBlock(grabbed_block, swap_target));
+				}
+				else
+                {
+					move_counter.minusLeftMoves();
 				}
 
 				this.grabbed_block = null; // 지금은 블록을 잡고 있지 않다.
@@ -140,6 +151,7 @@ public class BlockRoot : MonoBehaviour
 					ignite_count++; // 발화 수를 증가.
 				}
 			}
+
 			if (ignite_count > 0)
 			{ // 발화 수가 0보다 크면.
 
@@ -158,14 +170,42 @@ public class BlockRoot : MonoBehaviour
 				// ＝한 군데라도 맞춰진 곳이 있으면.
 				int block_count = 0; // 발화 중인 블록 수(다음 장에서 사용한다).
 									 // 그리드 내의 모든 블록에 대해서 처리.
+				int neighborYarnCount = 0; //발화되는 블럭의 상,하,좌,우에 있는 털실 카운트, 중복 있음
 				foreach (BlockControl block in this.blocks)
 				{
 					if (block.isVanishing())
 					{ // 발화중（점점 사라진다）이면.
 						block.rewindVanishTimer(); // 재발화！.
 						block_count++; // 발화 중인 블록의 개수를 증가.
+
+
+						if (this.checkYarn(block)>0)
+						{
+							neighborYarnCount++;
+						}
+                        else
+                        {
+							block.setYarn(true);
+                        }
 					}
 				}
+				//하나라도 인접한 털실이 있었으면 빼줌
+				if (neighborYarnCount > 0)
+					target_counter.minusLeftYarn();
+                //단 하나도 인접한 털실이 없었으면 빼줌
+                /*else
+                {
+					target_counter.plusLeftYarn();
+					//증식
+					foreach (BlockControl block in this.blocks)
+					{
+						if (!block.isYarn()&&!block.isKeyBlock())
+                        {
+							block.setYarn(true);
+							break;
+						}
+					}
+				}*/
 			}
 		}
 
@@ -224,6 +264,8 @@ public class BlockRoot : MonoBehaviour
 						continue;
 					}
 					this.blocks[x, y].GetComponent<MeshFilter>().sharedMesh = BlockPrefab.GetComponent<MeshFilter>().sharedMesh;
+					this.blocks[x, y].setKeyBlock(false);
+					this.blocks[x, y].setYarn(false);
 					this.blocks[x, y].beginRespawn(fall_start_y); // 블록 부활.
 					fall_start_y++;
 				}
@@ -254,13 +296,18 @@ public class BlockRoot : MonoBehaviour
 			this.swapBlock(
 			swap_target, grabbed_block.slide_dir, grabbed_block);
 		}
-
-		checkKeyBlock(grabbed_block, swap_target);
+        else
+        {
+			move_counter.minusLeftMoves(); //다시 되돌리지 않는다면, 그러니까 발화가 제대로 되었다면
+		}
+			
+		if(KeyMode)
+			checkKeyBlock(grabbed_block, swap_target);
 	}
 
 	public void checkKeyBlock(BlockControl block0, BlockControl block1)
 	{
-		if (mCurrentRowGap == 0) //horizontal split 상태가 아닐때
+		/*if (mCurrentRowGap == 0) //horizontal split 상태가 아닐때
 		{
 			if (block0.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
 				block0.i_pos.arrY == 0)
@@ -293,6 +340,21 @@ public class BlockRoot : MonoBehaviour
 				block1.toVanishing();
 				score_counter.minusGoalKeyCount();
 			}
+		}*/
+
+		//split 상태이든 아니든 y좌표가 0이여야만 발화
+		if (block0.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				block0.i_pos.arrY == 0)
+		{
+			block0.toVanishing();
+			target_counter.minusGoalKeyCount();
+		}
+
+		if (block1.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+			block1.i_pos.arrY == 0)
+		{
+			block1.toVanishing();
+			target_counter.minusGoalKeyCount();
 		}
 	}
 
@@ -321,7 +383,7 @@ public class BlockRoot : MonoBehaviour
 				BlockControl block;
 
 				// 2스테이지 일때 색에 기반해서 key 블럭(둥근 모양)으로 설정함
-				if (!FreeSwapMode &&
+				if (KeyMode &&
 					((x == 0 && y == Block.BLOCK_NUM_Y - 1) //2사분면의 좌상단 
 					|| (x == 0 && y == row) //3사분면의 좌상단
 					|| (x == Block.BLOCK_NUM_X - 1 && y == Block.BLOCK_NUM_Y - 1) //1사분면의 우상단
@@ -335,8 +397,23 @@ public class BlockRoot : MonoBehaviour
 					this.blocks[x, y] = block;
 
 					color = Block.COLOR.YELLOW; //안쓰는 색인 노란색으로 색을 정함
+					block.setKeyBlock(true);
 				}
-                else
+				else if(YarnMode&&
+					((x == 0 && y == 0) //3사분면의 좌하단
+					|| (x == Block.BLOCK_NUM_X - 1 && y == 0))) //4사분면의 우하단
+				{
+					game_object =
+					Instantiate(this.YarnBlockPrefab) as GameObject;
+					// 위에서 만든 블록의 BlockControl 클래스를 가져온다.
+					block = game_object.GetComponent<BlockControl>();
+					// 블록을 칸에 넣는다.
+					this.blocks[x, y] = block;
+
+					color = Block.COLOR.BLACK; //안쓰는 색인 검은색으로 색을 정함
+					block.setYarn(true);
+				}
+				else
                 {
 					game_object =
 					Instantiate(this.BlockPrefab) as GameObject;
@@ -615,7 +692,7 @@ public class BlockRoot : MonoBehaviour
 		for (int x = lx - 1; x > 0; x--)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.arrY];
-			if(FreeSwapMode&& next_block.color==Block.COLOR.YELLOW) //2스테이지에서 key block이면
+			if (next_block.isKeyBlock() || next_block.isYarn()) //현재 블럭이 key block이거나 털실이면
             {
 				break; //루프 탈출
             }
@@ -643,7 +720,7 @@ public class BlockRoot : MonoBehaviour
 		for (int x = rx + 1; x < Block.BLOCK_NUM_X; x++)
 		{
 			BlockControl next_block = this.blocks[x, start.i_pos.arrY];
-			if (FreeSwapMode && next_block.color == Block.COLOR.YELLOW) //2스테이지에서 key block이면
+			if (next_block.isKeyBlock() || next_block.isYarn()) //현재 블럭이 key block이거나 털실이면
 			{
 				break; //루프 탈출
 			}
@@ -697,7 +774,7 @@ public class BlockRoot : MonoBehaviour
 		for (int y = dy - 1; y > 0; y--)
 		{
 			BlockControl next_block = this.blocks[start.i_pos.arrX, y];
-			if (FreeSwapMode && next_block.color == Block.COLOR.YELLOW) //2스테이지에서 key block이면
+			if (next_block.isKeyBlock() || next_block.isYarn()) //현재 블럭이 key block이거나 털실이면
 			{
 				break; //루프 탈출
 			}
@@ -711,8 +788,8 @@ public class BlockRoot : MonoBehaviour
 		for (int y = uy + 1; y < Block.BLOCK_NUM_Y; y++)
 		{
 			BlockControl next_block = this.blocks[start.i_pos.arrX, y];
-			if(FreeSwapMode&& next_block.color==Block.COLOR.YELLOW) //2스테이지에서 key block이면
-            {
+			if(next_block.isKeyBlock() || next_block.isYarn()) //현재 블럭이 key block이거나 털실이면
+			{
 				break; //루프 탈출
             }
 			if (next_block.color != start.color || (mCurrentRowGap != 0 && next_block.i_pos.arrY == mRow + 1)) { break; }
@@ -734,7 +811,64 @@ public class BlockRoot : MonoBehaviour
 		return (ret);
 	}
 
-
+	public int checkYarn(BlockControl start) //주변에 털실이 있는지 확인하는 코드
+	{
+		int ret = 0;
+		// 그리드 좌표를 기억해 둔다.
+		int rx;
+		int lx;
+		rx = start.i_pos.arrX;
+		lx = start.i_pos.arrX;
+		// 블록의 왼쪽을 검사.
+		if ((mCurrentColumnGap != 0 && lx - 1 == mColumn) || lx - 1 < 0) 
+        {
+			Debug.Log("음");
+		}
+		else if (this.blocks[lx - 1, start.i_pos.arrY].isYarn())
+		{
+			
+			this.blocks[lx - 1, start.i_pos.arrY].toVanishing();
+			this.blocks[lx - 1, start.i_pos.arrY].setYarn(false);
+			ret++;
+		}
+		// 블록의 오른쪽을 검사.
+		if ((mCurrentColumnGap != 0 && rx + 1 == mColumn + 1) || rx + 1 >= Block.BLOCK_NUM_X)
+		{
+			Debug.Log("음");
+		}
+		else if(this.blocks[rx + 1, start.i_pos.arrY].isYarn()) 
+		{ 
+			this.blocks[rx + 1, start.i_pos.arrY].toVanishing();
+			this.blocks[rx + 1, start.i_pos.arrY].setYarn(false);
+			ret++;
+		}
+		
+		int uy = start.i_pos.arrY;
+		int dy = start.i_pos.arrY;
+		//블록의 아래쪽을 검사
+		if ((mCurrentRowGap != 0 && dy - 1 == mRow) || dy - 1 < 0) 
+		{
+			Debug.Log("음");
+		}
+		else if (this.blocks[start.i_pos.arrX, dy - 1].isYarn())
+        {
+			this.blocks[start.i_pos.arrX, dy - 1].toVanishing();
+			this.blocks[start.i_pos.arrX, dy - 1].setYarn(false);
+			ret++;
+		}
+		//블록의 위쪽을 검사
+		if ((mCurrentRowGap != 0 && uy + 1 == mRow + 1) || uy + 1 >= Block.BLOCK_NUM_Y)
+		{
+			Debug.Log("음");
+		}
+		else if (this.blocks[start.i_pos.arrX, uy + 1].isYarn())
+        {
+			this.blocks[start.i_pos.arrX, uy + 1].toVanishing();
+			this.blocks[start.i_pos.arrX, uy + 1].setYarn(false);
+			ret++;
+		}
+		return (ret);
+	}
 
 	private bool is_has_vanishing_block()
 	{
@@ -793,6 +927,11 @@ public class BlockRoot : MonoBehaviour
 		Block.STEP step0 = block0.step;
 		Block.STEP step1 = block1.step;
 
+		bool isKey0 = block0.isKeyBlock();
+		bool isKey1 = block1.isKeyBlock();
+		bool isYarn0 = block0.isYarn();
+		bool isYarn1 = block1.isYarn();
+
 		// 각 블록의 메쉬를 기억해 둔다
 		Mesh block0Mesh = block0.gameObject.GetComponent<MeshFilter>().sharedMesh;
 		Mesh block1Mesh = block1.gameObject.GetComponent<MeshFilter>().sharedMesh;
@@ -810,11 +949,17 @@ public class BlockRoot : MonoBehaviour
 		block1.step = step0;
 		block0.beginFall(block1);
 
+		block0.setKeyBlock(isKey1);
+		block1.setKeyBlock(isKey0);
+		block0.setYarn(isYarn1);
+		block1.setKeyBlock(isYarn0);
+
 		//메쉬 필터를 통한 외형 변경
 		block0.GetComponent<MeshFilter>().sharedMesh = block1Mesh;
 		block1.GetComponent<MeshFilter>().sharedMesh = block0Mesh;
 
-		checkKeyBlock(block0, block1); //떨어지는 애들 키 블럭 체크
+		if(KeyMode)
+			checkKeyBlock(block0, block1); //떨어지는 애들 키 블럭 체크
 	}
 
 

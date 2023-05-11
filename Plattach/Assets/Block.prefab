@@ -108,7 +108,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a53bb1fe790069147800af25a1197dbc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CubePrefab: {fileID: 1457808236704253330, guid: a3ea34bc8625c614e93fe688a6155978, type: 3}
   color: 0
   block_root: {fileID: 0}
   step: -1
@@ -119,3 +118,4 @@ MonoBehaviour:
   step_timer: 0
   opaque_material: {fileID: 0}
   transparent_material: {fileID: 0}
+  YarnBlockPrefab: {fileID: 3166035031424284265, guid: fb5d2331ef6776947a447e92a510b780, type: 3}

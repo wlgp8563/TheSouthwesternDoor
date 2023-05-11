@@ -14,8 +14,6 @@ public class ScoreCounter : MonoBehaviour
 	public Count best; // 최고 점수.
 	public static int QUOTA_SCORE = 1000; // 클리어에 필요한 점수.
 	public GUIStyle guistyle; // 폰트 스타일.
-	
-	public int goalKeyBlock; //key block을 없앨 목표치
 
 	private BlockRoot block_root = null;
 	
@@ -40,21 +38,16 @@ public class ScoreCounter : MonoBehaviour
 		this.print_value(x + 20, y, "합계 스코어", this.last.total_socre);
 		y += 30;
 
-		if(!this.block_root.FreeSwapMode)
-        {
-			//남은 키 블럭 UI에 표시
-			this.print_value(x + 20, y, "남은 키 블럭", this.goalKeyBlock);
-			y += 30;
-		}
+		
 	}
 	public void print_value(int x, int y, string label, int value)
 	{
 		// label을 표시.
-		GUI.Label(new Rect(x, y, 100, 20), label, guistyle);
+		/*GUI.Label(new Rect(x, y, 100, 20), label, guistyle);
 		y += 15;
 		// 다음 행에 value를 표시.
 		GUI.Label(new Rect(x + 20, y, 100, 20), value.ToString(), guistyle);
-		y += 15;
+		y += 15;*/
 	}
 	public void addIgniteCount(int count)
 	{
@@ -65,10 +58,7 @@ public class ScoreCounter : MonoBehaviour
 	{
 		this.last.ignite = 0; // 발화 횟수를 리셋.
 	}
-	public void minusGoalKeyCount()
-	{
-		this.goalKeyBlock -= 1; // 삭제해야할 key block의 목표치를 감소시킴
-	}
+	
 	private void update_score()
 	{
 		this.last.score = this.last.ignite * 10; // 스코어를 갱신.
@@ -81,10 +71,10 @@ public class ScoreCounter : MonoBehaviour
 	{
 		bool is_clear = false;
 		// 현재 합계 스코어가 클리어 기준보다 크다면.
-		if (this.last.total_socre > QUOTA_SCORE)
+		/*if (this.last.total_socre > QUOTA_SCORE)
 		{
 			is_clear = true;
-		}
+		}*/
 		return (is_clear);
 	}
 
