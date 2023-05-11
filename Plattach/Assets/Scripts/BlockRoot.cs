@@ -6,10 +6,12 @@ public class BlockRoot : MonoBehaviour
 	public bool FreeSwapMode;
 	public bool KeyMode;
 	public bool YarnMode;
+	public bool CloudMode;
 
 	public GameObject BlockPrefab = null; // 만들어 낼 블록의 프리팹.
 	public GameObject KeyBlockPrefab = null; // 만들어 낼 블록의 프리팹.
-	public GameObject YarnBlockPrefab = null; // 만들어 낼 블록의 프리팹.
+	public GameObject YarnPrefab = null; // 만들어 낼 블록의 프리팹.
+	public GameObject DarkCloudPrefab = null; // 만들어 낼 블록의 프리팹.
 	public BlockControl[,] blocks; // 그리드.
 
 	private GameObject main_camera = null; // 메인 카메라.
@@ -55,7 +57,7 @@ public class BlockRoot : MonoBehaviour
 				  // blocks 배열의 모든 요소를 차례로 처리한다.
 					foreach (BlockControl block in this.blocks)
 					{
-						if (!block.isGrabbable() || block.isYarn()) //털실은 grab 자체를 못하게 함
+						if (!block.isGrabbable() || block.isYarn() || block.isDarkCloud()) //털실은 grab 자체를 못하게 함
 						{ // 블록을 잡을 수 없으면.
 							continue; // 다음 블록으로.
 						}
@@ -88,7 +90,7 @@ public class BlockRoot : MonoBehaviour
 					break; // 루프 탈출. 
 				}
 				// 슬라이드할 곳 블록을 잡을 수 있는 상태가 아니라면.
-				if (!swap_target.isGrabbable() || swap_target.isYarn()) //털실과는 swap을 못하게 함
+				if (!swap_target.isGrabbable() || swap_target.isYarn() || swap_target.isDarkCloud()) //털실과는 swap을 못하게 함
 				{
 					break; // 루프 탈출. 
 				}
@@ -170,7 +172,6 @@ public class BlockRoot : MonoBehaviour
 				// ＝한 군데라도 맞춰진 곳이 있으면.
 				int block_count = 0; // 발화 중인 블록 수(다음 장에서 사용한다).
 									 // 그리드 내의 모든 블록에 대해서 처리.
-				int neighborYarnCount = 0; //발화되는 블럭의 상,하,좌,우에 있는 털실 카운트, 중복 있음
 				foreach (BlockControl block in this.blocks)
 				{
 					if (block.isVanishing())
@@ -179,33 +180,9 @@ public class BlockRoot : MonoBehaviour
 						block_count++; // 발화 중인 블록의 개수를 증가.
 
 
-						if (this.checkYarn(block)>0)
-						{
-							neighborYarnCount++;
-						}
-                        else
-                        {
-							block.setYarn(true);
-                        }
+						this.checkYarn(block);
 					}
 				}
-				//하나라도 인접한 털실이 있었으면 빼줌
-				if (neighborYarnCount > 0)
-					target_counter.minusLeftYarn();
-                //단 하나도 인접한 털실이 없었으면 빼줌
-                /*else
-                {
-					target_counter.plusLeftYarn();
-					//증식
-					foreach (BlockControl block in this.blocks)
-					{
-						if (!block.isYarn()&&!block.isKeyBlock())
-                        {
-							block.setYarn(true);
-							break;
-						}
-					}
-				}*/
 			}
 		}
 
@@ -256,16 +233,19 @@ public class BlockRoot : MonoBehaviour
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{
 				int fall_start_y = Block.BLOCK_NUM_Y;
-				for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
+				for (int y = Block.BLOCK_NUM_Y-1; y >= 0; y--) //이렇게 바꿈으로써 아래부터 채워지게 됨
 				{
+					if (blocks[x, y].isDarkCloud()) //먹구름 아래 있는 블럭은 채워주지 않음
+						break;
 					// 비표시 블록이 아니라면 다음 블록으로.
 					if (!this.blocks[x, y].isVacant())
 					{
 						continue;
 					}
 					this.blocks[x, y].GetComponent<MeshFilter>().sharedMesh = BlockPrefab.GetComponent<MeshFilter>().sharedMesh;
-					this.blocks[x, y].setKeyBlock(false);
+					/*this.blocks[x, y].setKeyBlock(false);
 					this.blocks[x, y].setYarn(false);
+					this.blocks[x, y].setDarkCloud(false);*/
 					this.blocks[x, y].beginRespawn(fall_start_y); // 블록 부활.
 					fall_start_y++;
 				}
@@ -347,14 +327,12 @@ public class BlockRoot : MonoBehaviour
 				block0.i_pos.arrY == 0)
 		{
 			block0.toVanishing();
-			target_counter.minusGoalKeyCount();
 		}
 
 		if (block1.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
 			block1.i_pos.arrY == 0)
 		{
 			block1.toVanishing();
-			target_counter.minusGoalKeyCount();
 		}
 	}
 
@@ -399,12 +377,12 @@ public class BlockRoot : MonoBehaviour
 					color = Block.COLOR.YELLOW; //안쓰는 색인 노란색으로 색을 정함
 					block.setKeyBlock(true);
 				}
-				else if(YarnMode&&
+				else if (YarnMode &&
 					((x == 0 && y == 0) //3사분면의 좌하단
 					|| (x == Block.BLOCK_NUM_X - 1 && y == 0))) //4사분면의 우하단
 				{
 					game_object =
-					Instantiate(this.YarnBlockPrefab) as GameObject;
+					Instantiate(this.YarnPrefab) as GameObject;
 					// 위에서 만든 블록의 BlockControl 클래스를 가져온다.
 					block = game_object.GetComponent<BlockControl>();
 					// 블록을 칸에 넣는다.
@@ -413,10 +391,19 @@ public class BlockRoot : MonoBehaviour
 					color = Block.COLOR.BLACK; //안쓰는 색인 검은색으로 색을 정함
 					block.setYarn(true);
 				}
+				else if (CloudMode && y == row)
+				{
+					game_object = Instantiate(this.DarkCloudPrefab) as GameObject;
+					// 위에서 만든 블록의 BlockControl 클래스를 가져온다.
+					block = game_object.GetComponent<BlockControl>();
+					// 블록을 칸에 넣는다.
+					this.blocks[x, y] = block;
+					block.setDarkCloud(true);
+				}
 				else
                 {
-					game_object =
-					Instantiate(this.BlockPrefab) as GameObject;
+					game_object = Instantiate(this.BlockPrefab) as GameObject;
+
 					// 위에서 만든 블록의 BlockControl 클래스를 가져온다.
 					block = game_object.GetComponent<BlockControl>();
 					// 블록을 칸에 넣는다.
@@ -822,7 +809,7 @@ public class BlockRoot : MonoBehaviour
 		// 블록의 왼쪽을 검사.
 		if ((mCurrentColumnGap != 0 && lx - 1 == mColumn) || lx - 1 < 0) 
         {
-			Debug.Log("음");
+			
 		}
 		else if (this.blocks[lx - 1, start.i_pos.arrY].isYarn())
 		{
@@ -834,7 +821,7 @@ public class BlockRoot : MonoBehaviour
 		// 블록의 오른쪽을 검사.
 		if ((mCurrentColumnGap != 0 && rx + 1 == mColumn + 1) || rx + 1 >= Block.BLOCK_NUM_X)
 		{
-			Debug.Log("음");
+			
 		}
 		else if(this.blocks[rx + 1, start.i_pos.arrY].isYarn()) 
 		{ 
@@ -848,7 +835,7 @@ public class BlockRoot : MonoBehaviour
 		//블록의 아래쪽을 검사
 		if ((mCurrentRowGap != 0 && dy - 1 == mRow) || dy - 1 < 0) 
 		{
-			Debug.Log("음");
+			
 		}
 		else if (this.blocks[start.i_pos.arrX, dy - 1].isYarn())
         {
@@ -859,7 +846,7 @@ public class BlockRoot : MonoBehaviour
 		//블록의 위쪽을 검사
 		if ((mCurrentRowGap != 0 && uy + 1 == mRow + 1) || uy + 1 >= Block.BLOCK_NUM_Y)
 		{
-			Debug.Log("음");
+			
 		}
 		else if (this.blocks[start.i_pos.arrX, uy + 1].isYarn())
         {
@@ -915,6 +902,8 @@ public class BlockRoot : MonoBehaviour
 	public void fallBlock(
 		BlockControl block0, Block.DIR4 dir, BlockControl block1)
 	{
+		if (block0.isDarkCloud() || block1.isDarkCloud())
+			return;
 		// block0과 block1의 색, 크기, 사라질 때까지 걸리는 시간, 표시, 비표시, 상태를 기록.
 		Block.COLOR color0 = block0.color;
 		Block.COLOR color1 = block1.color;

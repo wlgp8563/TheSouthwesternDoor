@@ -7,11 +7,13 @@ public class SceneControl : MonoBehaviour
 	private ScoreCounter score_counter = null;
 	private MoveCounter move_counter = null;
 	private TargetCounter target_counter = null;
+	public int level;
 	public enum STEP
 	{
 		NONE = -1, // 상태 정보 없음.
 		PLAY = 0, // 플레이 중.
-		CLEAR, // 클리어.
+		LEVEL1CLEAR, // 클리어.
+		LEVEL2CLEAR, // 클리어.
 		NUM, // 상태가 몇 종류인지 나타낸다(=2).
 		FAIL,
 	};
@@ -66,10 +68,17 @@ public class SceneControl : MonoBehaviour
 
 		switch (this.step)
 		{
-			case STEP.CLEAR:
+			case STEP.LEVEL1CLEAR:
 				if (Input.GetMouseButtonDown(0))
 				{
-					SceneManager.LoadScene("TitleScene");
+					SceneManager.LoadScene("SecondLevel");
+				}
+				break;
+
+			case STEP.LEVEL2CLEAR:
+				if (Input.GetMouseButtonDown(0))
+				{
+					SceneManager.LoadScene("Clear");
 				}
 				break;
 
@@ -94,7 +103,11 @@ public class SceneControl : MonoBehaviour
 					}*/
 					if (this.target_counter.isTargetClear())
 					{
-						this.next_step = STEP.CLEAR; // 클리어 상태로 이행.
+						if(level==1)
+							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
+						else if(level==2)
+							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
+
 					}
 					if (this.move_counter.isLeftMovesZero()) //나중에 && !this.TargetCounter.isTargetClear() 넣기
 					{
@@ -118,7 +131,8 @@ public class SceneControl : MonoBehaviour
 			this.next_step = STEP.NONE;
 			switch (this.step)
 			{
-				case STEP.CLEAR:
+				case STEP.LEVEL1CLEAR:
+				case STEP.LEVEL2CLEAR:
 					// block_root를 정지.
 					this.block_root.enabled = false;
 					// 경과 시간을 클리어 시간으로 설정.
@@ -142,7 +156,8 @@ public class SceneControl : MonoBehaviour
 				GUI.color = Color.white;
 				GUI.color = Color.black;
 				break;
-			case STEP.CLEAR:
+			case STEP.LEVEL1CLEAR:
+			case STEP.LEVEL2CLEAR:
 				GUI.color = Color.black;
 				// 「☆클리어-！☆」라는 문자열을 표시.
 				GUI.Label(new Rect(

@@ -46,7 +46,7 @@ public class MoveCounter : MonoBehaviour
 	public bool isLeftMovesZero()
 	{
 		
-		if (this.leftMoves > 0)
+		if (this.leftMoves > -1)
 			return false;
 		// 현재 남은 이동 횟수가 0이면 
 		return true;

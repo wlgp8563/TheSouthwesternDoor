@@ -19,7 +19,22 @@ public class TargetCounter : MonoBehaviour
 		this.leftYarn = this.InitYarn;
 	}
 
-	void OnGUI()
+    private void Update()
+    {
+		int keyCount = 0;
+		int yarnCount = 0;
+		foreach (BlockControl block in this.block_root.blocks)
+		{
+			if (block.isKeyBlock())
+				keyCount++;
+			if (block.isYarn())
+				yarnCount++;
+		}
+		goalKeyBlock = keyCount;
+		leftYarn = yarnCount;
+	}
+
+    void OnGUI()
 	{
 		int x = 20;
 		int y = 50;
@@ -44,18 +59,7 @@ public class TargetCounter : MonoBehaviour
 		GUI.Label(new Rect(x + 20, y, 100, 20), value.ToString(), guistyle);
 		y += 15;
 	}
-	public void minusLeftYarn()
-	{
-		this.leftYarn--;
-	}
-	public void plusLeftYarn()
-	{
-		this.leftYarn++;
-	}
-	public int getLeftYarn()
-	{
-		return this.leftYarn;
-	}
+
 	public bool isTargetClear()
 	{
 		if (this.leftYarn > 0)
@@ -63,9 +67,5 @@ public class TargetCounter : MonoBehaviour
 		if (this.block_root.KeyMode && this.goalKeyBlock>0)
 			return false;
 		return true;
-	}
-	public void minusGoalKeyCount()
-	{
-		this.goalKeyBlock -= 1; // 삭제해야할 key block의 목표치를 감소시킴
 	}
 }

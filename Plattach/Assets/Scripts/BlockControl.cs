@@ -87,7 +87,8 @@ public class BlockControl : MonoBehaviour
 
 	public bool m_isKeyBlock = false;
 	public bool m_isYarn = false;
-	public GameObject YarnBlockPrefab = null;
+	public bool m_isDarkCloud = false;
+
 	private struct StepFall
 	{
 		public float velocity; // 낙하속도.
@@ -111,6 +112,27 @@ public class BlockControl : MonoBehaviour
 		// 가져온 마우스 위치를 X와 Y만으로 한다.
 		Vector2 mouse_position_xy = new Vector2(mouse_position.x, mouse_position.y);
 
+		
+		/*if(isKeyBlock())
+        {
+			this.gameObject.GetComponent<MeshFilter>().sharedMesh = block_root.KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh;
+			this.transform.localScale = Vector3.one * 1.0f;
+		}*/
+		if (isYarn())
+        {
+			this.gameObject.GetComponent<MeshFilter>().sharedMesh = block_root.YarnPrefab.GetComponent<MeshFilter>().sharedMesh;
+			this.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f);
+		}
+		else if(isDarkCloud())
+        {
+			this.gameObject.GetComponent<MeshFilter>().sharedMesh = block_root.DarkCloudPrefab.GetComponent<MeshFilter>().sharedMesh;
+			this.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f);
+		}
+		/*else
+		{
+			this.gameObject.GetComponent<MeshFilter>().sharedMesh = block_root.BlockPrefab.GetComponent<MeshFilter>().sharedMesh;
+			this.transform.localScale = Vector3.one * 1.0f;
+		}*/
 
 		if (this.vanish_timer >= 0.0f)
 		{ // 타이머가 0이상이면.
@@ -185,9 +207,14 @@ public class BlockControl : MonoBehaviour
 					this.transform.localScale = Vector3.one * 1.0f;
                     if (m_isYarn)
                     {
-						this.setShape(YarnBlockPrefab.GetComponent<MeshFilter>());
+						this.setShape(block_root.YarnPrefab.GetComponent<MeshFilter>());
 						this.setColor(Block.COLOR.BLACK);
 						this.transform.localScale = new Vector3(1.0f,0.5f,1.0f); //털실 객체 크기 줄이기
+					}
+					else if (m_isDarkCloud)
+					{
+						this.setShape(block_root.DarkCloudPrefab.GetComponent<MeshFilter>());
+						this.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f); //먹구름 객체 크기 줄이기
 					}
 					break;
 				case Block.STEP.GRABBED: // '잡힌 상태'.
@@ -269,7 +296,7 @@ public class BlockControl : MonoBehaviour
 			Color color0 = // 현재 색과 흰색의 중간색.
 				Color.Lerp(this.GetComponent<Renderer>().material.color, Color.white, 0.5f);
 			Color color1 = // 현재 색과 검은색의 중간색.
-				Color.Lerp(this.GetComponent<Renderer>().material.color, Color.white, 0.5f);
+				Color.Lerp(this.GetComponent<Renderer>().material.color, Color.black, 0.5f);
 			// 발화 연출 시간의 절반을 지났다면.
 			if (this.vanish_timer < Block.VANISH_TIME / 2.0f)
 			{
@@ -451,6 +478,11 @@ public class BlockControl : MonoBehaviour
 		// 현재 레벨의 연소시간으로 설정.
 		float vanish_time = this.block_root.level_control.getVanishTime();
 		this.vanish_timer = vanish_time;
+
+		if(this.m_isDarkCloud)
+        {
+			m_isDarkCloud = false;
+		}
 	}
 
 	public bool isVanishing()
@@ -557,5 +589,17 @@ public class BlockControl : MonoBehaviour
 	public bool isYarn()
 	{
 		return m_isYarn;
+	}
+
+	public void setDarkCloud(bool isDarkCloud)
+	{
+		//this.setColor(Block.COLOR.BLACK);
+		//this.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f); //털실 객체 크기 줄이기
+		//this.setShape(YarnBlockPrefab.GetComponent<MeshFilter>());
+		m_isDarkCloud = isDarkCloud;
+	}
+	public bool isDarkCloud()
+	{
+		return m_isDarkCloud;
 	}
 }
