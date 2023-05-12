@@ -440,7 +440,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3db05529a0c8e04b8829eae9eab0424, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InitYarn: 2
+  InitYarn: 4
   guistyle:
     m_Name: 
     m_Normal:

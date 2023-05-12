@@ -378,7 +378,9 @@ public class BlockRoot : MonoBehaviour
 					block.setKeyBlock(true);
 				}
 				else if (YarnMode &&
-					((x == 0 && y == 0) //3사분면의 좌하단
+					((x == Block.BLOCK_NUM_X - 1 && y == row + 1) //1사분면의 좌 하단
+					|| (x == 0 && y == row + 1) //2사분면의 좌 하단
+					|| (x == 0 && y == 0) //3사분면의 좌하단
 					|| (x == Block.BLOCK_NUM_X - 1 && y == 0))) //4사분면의 우하단
 				{
 					game_object =
