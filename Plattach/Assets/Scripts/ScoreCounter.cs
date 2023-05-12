@@ -3,41 +3,37 @@ using System.Collections;
 
 public class ScoreCounter : MonoBehaviour
 {
-
+	[SerializeField]
+	private int bonusNorm; //피버 기준, 만약에 이게 1000이라고 치면 n천점일때마다 피버가 실행되는거임
+							// 여기서 피버는, 일정 시간 동안 지속되는게 아니라, 그냥 이동 횟수 1회 늘려주는 찬스라고 생각하면됨
 	public struct Count
 	{ // 점수 관리용 구조체.
 		public int ignite; // 발화 수.
 		public int score; // 점수.
 		public int total_score; // 합계 점수.
-		public int fever_score;  //피버 타임 체크 스코어
+		public int bonus_gage;
 	};
 	public Count last; // 마지막(이번) 점수.
 	public Count best; // 최고 점수.
-	public static int QUOTA_SCORE = 5000; // 클리어에 필요한 점수.
-	public int feverTimeCount = 0;
-	//public bool isFever = false;
+	public static int QUOTA_SCORE = 1000; // 클리어에 필요한 점수.
 	public GUIStyle guistyle; // 폰트 스타일.
-	private SceneControl count_root = null;
-
-	[SerializeField]
-	private int fevergage;
 
 	private BlockRoot block_root = null;
-	
+	private MoveCounter move_counter = null;
+	public int bonusCount = 0;
 	void Start()
 	{
 		this.block_root = this.gameObject.GetComponent<BlockRoot>();
-		this.count_root = this.gameObject.GetComponent<SceneControl>();
+		this.move_counter = this.gameObject.GetComponent<MoveCounter>();
 		this.last.ignite = 0;
 		this.last.score = 0;
 		this.last.total_score = 0;
-		//this.last.fever_score = 0;
 		this.guistyle.fontSize = 16;
+		this.last.bonus_gage = 0;
 	}
 
 	void OnGUI()
 	{
-		Debug.Log(this.last.fever_score);
 		int x = 20;
 		int y = 50;
 		GUI.color = Color.black;
@@ -48,16 +44,16 @@ public class ScoreCounter : MonoBehaviour
 		this.print_value(x + 20, y, "합계 스코어", this.last.total_score);
 		y += 30;
 
-		//this.print_value(x + 20, y, "피버타임게이지", this.last.fever_score);
+		this.print_value(x + 20, y, "보너스 이동 게이지", (float)this.last.bonus_gage / bonusNorm * 100);
 	}
-	public void print_value(int x, int y, string label, int value)
+	public void print_value(int x, int y, string label, float value)
 	{
 		// label을 표시.
-		/*GUI.Label(new Rect(x, y, 100, 20), label, guistyle);
+		GUI.Label(new Rect(x, y, 100, 20), label, guistyle);
 		y += 15;
 		// 다음 행에 value를 표시.
 		GUI.Label(new Rect(x + 20, y, 100, 20), value.ToString(), guistyle);
-		y += 15;*/
+		y += 15;
 	}
 	public void addIgniteCount(int count)
 	{
@@ -68,56 +64,38 @@ public class ScoreCounter : MonoBehaviour
 	{
 		this.last.ignite = 0; // 발화 횟수를 리셋.
 	}
-	
-	private void update_score()
+
+
+    private void update_score()
 	{
 		this.last.score = this.last.ignite * 10; // 스코어를 갱신.
-	}
-
-
-	public void Fever_time()
-	{
-		//int fever_multiplier = 2; // 스코어 배수할 크기
-		//float fever_duration = 5.0f; // 피버 타임 지속 시간(초)
-
-		if (fevergage * (feverTimeCount + 1) <= this.last.total_score)
-		{
-			this.last.fever_score = 0;
-			//feverUpdateScore();
-			//isFever = true;
-			//update_score();
-			StartCoroutine(FeverCoroutine());
-			feverTimeCount++;
-		}
-		//isFever = false;
-	}
-
-	IEnumerator FeverCoroutine()
-	{
-		Debug.Log("피버코루틴");
-		int originalScore = this.last.total_score;
-		// 스코어 배수를 적용하고 duration 동안 기다린 후 다시 원래 스코어로 돌아옴
 		
-		this.last.total_score = originalScore + (this.last.score * 2);
-		this.last.fever_score += this.last.score;
-		yield return new WaitForSeconds(5.0f);
 	}
-
 	public void updateTotalScore()
 	{
 		this.last.total_score += this.last.score; // 합계 스코어를 갱신.
-		this.last.fever_score = this.last.total_score - (fevergage * feverTimeCount);
+		this.last.bonus_gage = this.last.total_score - (bonusNorm * bonusCount);
 		Fever_time();
 	}
 	public bool isGameClear()
 	{
 		bool is_clear = false;
 		// 현재 합계 스코어가 클리어 기준보다 크다면.
-		//if (this.last.total_score > QUOTA_SCORE)
 		/*if (this.last.total_socre > QUOTA_SCORE)
 		{
 			is_clear = true;
 		}*/
 		return (is_clear);
 	}
+
+    public void Fever_time()
+	{
+		if (bonusNorm * (bonusCount + 1) <= this.last.total_score)
+		{
+			this.last.bonus_gage = 0;
+			move_counter.plusLeftMoves();
+			bonusCount++;
+		}
+	}
+
 }

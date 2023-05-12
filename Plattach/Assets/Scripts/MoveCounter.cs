@@ -21,7 +21,7 @@ public class MoveCounter : MonoBehaviour
 	void OnGUI()
 	{
 		int x = 20;
-		int y = 50;
+		int y = 200;
 		GUI.color = Color.black;
 		this.print_value(x + 20, y, "남은 이동 횟수", this.leftMoves);
 	}
@@ -39,6 +39,10 @@ public class MoveCounter : MonoBehaviour
 	{
 		this.leftMoves--;
 	}
+	public void plusLeftMoves()
+	{
+		this.leftMoves++;
+	}
 	public int getLeftMoves() //남은 이동 가능 횟수를 리턴
 	{
 		return this.leftMoves;
@@ -46,7 +50,7 @@ public class MoveCounter : MonoBehaviour
 	public bool isLeftMovesZero()
 	{
 		
-		if (this.leftMoves > -1)
+		if (this.leftMoves > 0)
 			return false;
 		// 현재 남은 이동 횟수가 0이면 
 		return true;

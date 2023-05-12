@@ -37,7 +37,7 @@ public class TargetCounter : MonoBehaviour
     void OnGUI()
 	{
 		int x = 20;
-		int y = 50;
+		int y = 150;
 		GUI.color = Color.black;
 		y += 90;
 		this.print_value(x + 20, y, "남은 털실을 모두 없애세요, 남은 털실:", this.leftYarn);

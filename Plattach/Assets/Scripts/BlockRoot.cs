@@ -25,9 +25,7 @@ public class BlockRoot : MonoBehaviour
 	public TextAsset levelData = null; // 레벨 데이터의 텍스트를 저장.
 	public LevelControl level_control; // LevelControl를 저장.
 
-	public int ignite_count;
-
-	//	private int mGap;
+//	private int mGap;
 	private int mCurrentRowGap;
 	private int mCurrentColumnGap;
 	private int mRow;
@@ -141,7 +139,7 @@ public class BlockRoot : MonoBehaviour
 		}
 		else
 		{
-			ignite_count = 0; // 발화 수.
+			int ignite_count = 0; // 발화 수.
 								  // 그리드 안의 모든 블록에 대해서 처리.
 			foreach (BlockControl block in this.blocks)
 			{
@@ -149,15 +147,15 @@ public class BlockRoot : MonoBehaviour
 				{ // 대기 중이면 루프의 처음으로 점프하고,.
 					continue; // 다음 블록을 처리한다.
 				}
-				// 세로 또는 가로에 같은 색 블록이 세 개 이상으로 나열했다면.
-				if (this.checkConnection(block))
+				// 세로 또는 가로에 같은 색 블록이 세 개 이상 나열했다면.
+				if(this.checkfourmatch(block)) //2*2 match
+                {
+					ignite_count += 2;
+				}
+				else if (this.checkConnection(block))
 				{
 					ignite_count++; // 발화 수를 증가.
 				}
-				if(this.checkfourmatch(block))            //블록을 2X2로 나열했다면, 발화 수를 2개로 가산한다.
-                {
-					ignite_count += 2;
-                }
 			}
 
 			if (ignite_count > 0)
@@ -249,9 +247,9 @@ public class BlockRoot : MonoBehaviour
 						continue;
 					}
 					this.blocks[x, y].GetComponent<MeshFilter>().sharedMesh = BlockPrefab.GetComponent<MeshFilter>().sharedMesh;
-					/*this.blocks[x, y].setKeyBlock(false);
+					this.blocks[x, y].setKeyBlock(false);
 					this.blocks[x, y].setYarn(false);
-					this.blocks[x, y].setDarkCloud(false);*/
+					this.blocks[x, y].setDarkCloud(false);
 					this.blocks[x, y].beginRespawn(fall_start_y); // 블록 부활.
 					fall_start_y++;
 				}
@@ -642,6 +640,11 @@ public class BlockRoot : MonoBehaviour
 		Mesh block0Mesh = block0.gameObject.GetComponent<MeshFilter>().sharedMesh;
 		Mesh block1Mesh = block1.gameObject.GetComponent<MeshFilter>().sharedMesh;
 
+		bool isKey0 = block0.isKeyBlock();
+		bool isKey1 = block1.isKeyBlock();
+		bool isYarn0 = block0.isYarn();
+		bool isYarn1 = block1.isYarn();
+
 		// 각 블록의.
 		// 확대율을 기억해 둔다.
 		Vector3 scale0 =
@@ -661,6 +664,11 @@ public class BlockRoot : MonoBehaviour
 		block0.GetComponent<MeshFilter>().sharedMesh = block1Mesh;
 		block1.GetComponent<MeshFilter>().sharedMesh = block0Mesh;
 
+		block0.setKeyBlock(isKey1);
+		block1.setKeyBlock(isKey0);
+		block0.setYarn(isYarn1);
+		block1.setKeyBlock(isYarn0);
+
 		block0.transform.localScale = scale1; // 확대율을 교체한다.
 		block1.transform.localScale = scale0;
 		block0.vanish_timer = vanish_timer1; // 사라지는 시간을 교체한다.
@@ -668,8 +676,9 @@ public class BlockRoot : MonoBehaviour
 		block0.beginSlide(offset0); // 원래 블록의 이동을 시작.
 		block1.beginSlide(offset1); // 이동할 곳의 블록 이동을 시작.
 	}
+
 	public bool checkfourmatch(BlockControl start)
-    {
+	{
 		bool ret = false;
 		bool squ = false;
 		//bool midche = false;
@@ -680,10 +689,10 @@ public class BlockRoot : MonoBehaviour
 		{
 			normal_block_num = 1;
 		}
-        else
-        {
+		else
+		{
 			return false;
-        }
+		}
 		// 그리드 좌표를 기억해 둔다.
 		int rx;
 		int lx;
@@ -768,7 +777,7 @@ public class BlockRoot : MonoBehaviour
 		do
 		{
 			if ((rx - lx + 1 == 2 && uy - dy + 1 == 2) && this.blocks[lx, dy].color == this.blocks[lx, dy + 1].color
-				&& this.blocks[lx, dy].color == this.blocks[lx + 1, dy].color && this.blocks[lx, dy].color == this.blocks[lx + 1, dy + 1].color)
+			   && this.blocks[lx, dy].color == this.blocks[lx + 1, dy].color && this.blocks[lx, dy].color == this.blocks[lx + 1, dy + 1].color)
 			{
 				this.blocks[lx, dy].toVanishing();
 				this.blocks[lx, dy + 1].toVanishing();
@@ -787,15 +796,14 @@ public class BlockRoot : MonoBehaviour
 			}
 			/*else
 			{
-				// move on to the next block
-				lx++;
-				rx++;
-				if (rx >= Block.BLOCK_NUM_X) break;
+			   // move on to the next block
+			   lx++;
+			   rx++;
+			   if (rx >= Block.BLOCK_NUM_X) break;
 			}*/
 		} while (false);
 		return (ret);
 	}
-
 	public bool checkConnection(BlockControl start)
 	{
 		bool ret = false;
@@ -869,10 +877,9 @@ public class BlockRoot : MonoBehaviour
 		do
 		{
 			// 오른쪽 블록의 그리드 번호 - 왼쪽 블록의 그리드 번호 +.
-			// 중앙 블록(1)을 더한 수가 3미만 이면, 
+			// 중앙 블록(1)을 더한 수가 3미만 이면.
 			if (rx - lx + 1 < 3)
 			{
-				//체크하는 문을 써서
 				break; // 루프 탈출.
 			}
 			if (normal_block_num == 0)
@@ -886,7 +893,6 @@ public class BlockRoot : MonoBehaviour
 				ret = true;
 			}
 		} while (false);
-
 		normal_block_num = 0;
 		if (!start.isVanishing())
 		{
@@ -1062,6 +1068,11 @@ public class BlockRoot : MonoBehaviour
 		Mesh block0Mesh = block0.gameObject.GetComponent<MeshFilter>().sharedMesh;
 		Mesh block1Mesh = block1.gameObject.GetComponent<MeshFilter>().sharedMesh;
 
+		block0.setKeyBlock(isKey1);
+		block1.setKeyBlock(isKey0);
+		block0.setYarn(isYarn1);
+		block1.setYarn(isYarn0);
+
 		// block0과 block1의 각종 속성을 교체한다.
 		block0.setColor(color1);
 		block1.setColor(color0);
@@ -1075,11 +1086,6 @@ public class BlockRoot : MonoBehaviour
 		block1.step = step0;
 		block0.beginFall(block1);
 
-		block0.setKeyBlock(isKey1);
-		block1.setKeyBlock(isKey0);
-		block0.setYarn(isYarn1);
-		block1.setKeyBlock(isYarn0);
-
 		//메쉬 필터를 통한 외형 변경
 		block0.GetComponent<MeshFilter>().sharedMesh = block1Mesh;
 		block1.GetComponent<MeshFilter>().sharedMesh = block0Mesh;
@@ -1087,19 +1093,6 @@ public class BlockRoot : MonoBehaviour
 		if(KeyMode)
 			checkKeyBlock(block0, block1); //떨어지는 애들 키 블럭 체크
 	}
-
-	public void catblock_condition()
-    {
-		if(ignite_count >= 5)
-        {
-			catblock();
-        }
-    }
-
-	public void catblock()
-    {
-
-    }
 
 
 	private bool is_has_sliding_block_in_column(int x)

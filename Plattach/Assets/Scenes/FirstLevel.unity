@@ -269,7 +269,6 @@ MonoBehaviour:
   YarnPrefab: {fileID: 3166035031424284265, guid: fb5d2331ef6776947a447e92a510b780, type: 3}
   DarkCloudPrefab: {fileID: 4225187819216865987, guid: 4c04c4fe5e18d7a499b2d3bd7bea19a3, type: 3}
   levelData: {fileID: 4900000, guid: f77fec06cd1aa6d4aa6dff5caed3f751, type: 3}
-  ignite_count: 0
 --- !u!114 &413390787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,7 +281,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6eb6a54055b784946a850cbb7eff1ca9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  feverTimeCount: 0
+  bonusNorm: 1000
   guistyle:
     m_Name: 
     m_Normal:
@@ -350,9 +349,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-<<<<<<< HEAD:Plattach/Assets/Scenes/GameScene.unity
-  fevergage: 500
-=======
+  bonusCount: 0
 --- !u!114 &413390788
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -513,7 +510,6 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
->>>>>>> 79b2bba1a58493b99678bdf2da7ed8421d885c07:Plattach/Assets/Scenes/FirstLevel.unity
   goalKeyBlock: 4
 --- !u!1 &705507993
 GameObject:

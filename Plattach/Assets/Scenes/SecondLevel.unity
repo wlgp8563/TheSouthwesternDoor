@@ -272,7 +272,6 @@ MonoBehaviour:
   YarnPrefab: {fileID: 3166035031424284265, guid: fb5d2331ef6776947a447e92a510b780, type: 3}
   DarkCloudPrefab: {fileID: 4225187819216865987, guid: 4c04c4fe5e18d7a499b2d3bd7bea19a3, type: 3}
   levelData: {fileID: 4900000, guid: f77fec06cd1aa6d4aa6dff5caed3f751, type: 3}
-  ignite_count: 0
 --- !u!114 &1161210077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,7 +284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3db05529a0c8e04b8829eae9eab0424, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InitYarn: 4
+  InitYarn: 2
   guistyle:
     m_Name: 
     m_Normal:
@@ -446,7 +445,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6eb6a54055b784946a850cbb7eff1ca9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  feverTimeCount: 0
+  bonusNorm: 500
   guistyle:
     m_Name: 
     m_Normal:
@@ -514,7 +513,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-  fevergage: 0
+  bonusCount: 0
 --- !u!114 &1161210081
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -527,7 +526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 108548f620630c0459e214a5a4ef5ff9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  level: 0
+  level: 2
   step: -1
   next_step: -1
   step_timer: 0
@@ -603,8 +602,8 @@ MonoBehaviour:
   row: 5
   column: 5
   timeLimit: 210
-  horizontalSplitMoves: 0
-  verticalSplitMoves: 0
+  horizontalSplitMoves: 5
+  verticalSplitMoves: 10
 --- !u!1 &1781341705
 GameObject:
   m_ObjectHideFlags: 0
