@@ -281,6 +281,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6eb6a54055b784946a850cbb7eff1ca9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  bonusNorm: 1000
   guistyle:
     m_Name: 
     m_Normal:
@@ -348,6 +349,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
+  bonusCount: 0
 --- !u!114 &413390788
 MonoBehaviour:
   m_ObjectHideFlags: 0

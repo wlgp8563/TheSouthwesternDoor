@@ -109,7 +109,7 @@ public class SceneControl : MonoBehaviour
 							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
 
 					}
-					if (this.move_counter.isLeftMovesZero()) //나중에 && !this.TargetCounter.isTargetClear() 넣기
+					else if (this.move_counter.isLeftMovesZero()) //나중에 && !this.TargetCounter.isTargetClear() 넣기
 					{
 						this.next_step = STEP.FAIL;
 					}
