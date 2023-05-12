@@ -17,15 +17,10 @@ public class ScoreCounter : MonoBehaviour
 	public int feverTimeCount = 0;
 	//public bool isFever = false;
 	public GUIStyle guistyle; // 폰트 스타일.
-<<<<<<< HEAD
 	private SceneControl count_root = null;
 
 	[SerializeField]
 	private int fevergage;
-
-	public int goalKeyBlock; //key block을 없앨 목표치
-=======
->>>>>>> 79b2bba1a58493b99678bdf2da7ed8421d885c07
 
 	private BlockRoot block_root = null;
 	
@@ -53,17 +48,7 @@ public class ScoreCounter : MonoBehaviour
 		this.print_value(x + 20, y, "합계 스코어", this.last.total_score);
 		y += 30;
 
-<<<<<<< HEAD
-		if (!this.block_root.FreeSwapMode)
-		{
-			//남은 키 블럭 UI에 표시
-			this.print_value(x + 20, y, "남은 키 블럭", this.goalKeyBlock);
-			y += 30;
-		}
-		this.print_value(x + 20, y, "피버타임게이지", this.last.fever_score);
-=======
-		
->>>>>>> 79b2bba1a58493b99678bdf2da7ed8421d885c07
+		//this.print_value(x + 20, y, "피버타임게이지", this.last.fever_score);
 	}
 	public void print_value(int x, int y, string label, int value)
 	{
@@ -83,17 +68,8 @@ public class ScoreCounter : MonoBehaviour
 	{
 		this.last.ignite = 0; // 발화 횟수를 리셋.
 	}
-<<<<<<< HEAD
-	public void minusGoalKeyCount()
-	{
-		this.goalKeyBlock -= 1; // 삭제해야할 key block의 목표치를 감소시킴
-	}
-	
-	public void update_score()
-=======
 	
 	private void update_score()
->>>>>>> 79b2bba1a58493b99678bdf2da7ed8421d885c07
 	{
 		this.last.score = this.last.ignite * 10; // 스코어를 갱신.
 	}
@@ -137,11 +113,8 @@ public class ScoreCounter : MonoBehaviour
 	{
 		bool is_clear = false;
 		// 현재 합계 스코어가 클리어 기준보다 크다면.
-<<<<<<< HEAD
-		if (this.last.total_score > QUOTA_SCORE)
-=======
+		//if (this.last.total_score > QUOTA_SCORE)
 		/*if (this.last.total_socre > QUOTA_SCORE)
->>>>>>> 79b2bba1a58493b99678bdf2da7ed8421d885c07
 		{
 			is_clear = true;
 		}*/
