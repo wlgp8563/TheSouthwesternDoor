@@ -26,7 +26,8 @@ public class Block
 		MAGENTA, // 마젠타.
 		ORANGE, // 오렌지.
 		GRAY, // 회색.
-		NUM, // 색상이 몇 종류인지 나타낸다(=7).
+		BLACK, //검은색
+		NUM, // 색상이 몇 종류인지 나타낸다(=8).
 		FIRST = PINK, // 초기 색상(분홍색).
 		LAST = ORANGE, // 마지막 색상(오렌지).
 		NORMAL_COLOR_NUM = GRAY, // 일반 색상(그레이 이외 색)의 수.
@@ -56,9 +57,10 @@ public class Block
 		NUM, // 상태가 몇 종류인지 나타낸다(=8).
 	};
 
+	
+	public static int BLOCK_NUM_X = 12; // 블록을 배치할 수 있는 X 방향 최댓값.
+	public static int BLOCK_NUM_Y = 12; // 블록을 배치할 수 있는 Y 방향 최댓값.
 
-	public static int BLOCK_NUM_X = 10; // 블록을 배치할 수 있는 X 방향 최댓값.
-	public static int BLOCK_NUM_Y = 10; // 블록을 배치할 수 있는 Y 방향 최댓값.
 }
 
 
@@ -83,6 +85,9 @@ public class BlockControl : MonoBehaviour
 	public Material opaque_material; // 불투명용 재질.
 	public Material transparent_material; // 반투명용 재질.
 
+	public bool m_isKeyBlock = false;
+	public bool m_isYarn = false;
+	public bool m_isDarkCloud = false;
 
 	private struct StepFall
 	{
@@ -107,6 +112,27 @@ public class BlockControl : MonoBehaviour
 		// 가져온 마우스 위치를 X와 Y만으로 한다.
 		Vector2 mouse_position_xy = new Vector2(mouse_position.x, mouse_position.y);
 
+		
+		/*if(isKeyBlock())
+        {
+			this.gameObject.GetComponent<MeshFilter>().sharedMesh = block_root.KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh;
+			this.transform.localScale = Vector3.one * 1.0f;
+		}*/
+		if (isYarn())
+        {
+			this.gameObject.GetComponent<MeshFilter>().sharedMesh = block_root.YarnPrefab.GetComponent<MeshFilter>().sharedMesh;
+			this.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f);
+		}
+		else if(isDarkCloud())
+        {
+			this.gameObject.GetComponent<MeshFilter>().sharedMesh = block_root.DarkCloudPrefab.GetComponent<MeshFilter>().sharedMesh;
+			this.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f);
+		}
+		/*else
+		{
+			this.gameObject.GetComponent<MeshFilter>().sharedMesh = block_root.BlockPrefab.GetComponent<MeshFilter>().sharedMesh;
+			this.transform.localScale = Vector3.one * 1.0f;
+		}*/
 
 		if (this.vanish_timer >= 0.0f)
 		{ // 타이머가 0이상이면.
@@ -179,6 +205,17 @@ public class BlockControl : MonoBehaviour
 					this.position_offset = Vector3.zero;
 					// 블록의 표시 크기를 일반 크기로 한다.
 					this.transform.localScale = Vector3.one * 1.0f;
+                    if (m_isYarn)
+                    {
+						this.setShape(block_root.YarnPrefab.GetComponent<MeshFilter>());
+						this.setColor(Block.COLOR.BLACK);
+						this.transform.localScale = new Vector3(1.0f,0.5f,1.0f); //털실 객체 크기 줄이기
+					}
+					else if (m_isDarkCloud)
+					{
+						this.setShape(block_root.DarkCloudPrefab.GetComponent<MeshFilter>());
+						this.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f); //먹구름 객체 크기 줄이기
+					}
 					break;
 				case Block.STEP.GRABBED: // '잡힌 상태'.
 										 // 블록 표시 크기를 크게 한다.
@@ -304,11 +341,19 @@ public class BlockControl : MonoBehaviour
 			case Block.COLOR.ORANGE:
 				color_value = new Color(1.0f, 0.46f, 0.0f);
 				break;
+			case Block.COLOR.BLACK:
+				color_value = Color.black;
+				break;
 		}
 		// 이 GameObject의 머티리얼 색상을 변경.
 		this.GetComponent<Renderer>().material.color = color_value;
 	}
 
+	public void setShape(MeshFilter mesh)
+	{
+		// 이 GameObject의 머티리얼 색상을 변경.
+		this.GetComponent<MeshFilter>().sharedMesh = mesh.sharedMesh;
+	}
 
 	public void beginGrab()
 	{
@@ -433,6 +478,11 @@ public class BlockControl : MonoBehaviour
 		// 현재 레벨의 연소시간으로 설정.
 		float vanish_time = this.block_root.level_control.getVanishTime();
 		this.vanish_timer = vanish_time;
+
+		if(this.m_isDarkCloud)
+        {
+			m_isDarkCloud = false;
+		}
 	}
 
 	public bool isVanishing()
@@ -520,4 +570,36 @@ public class BlockControl : MonoBehaviour
 		return (is_sliding);
 	}
 
+	public void setKeyBlock(bool isKeyBlock)
+	{
+		m_isKeyBlock = isKeyBlock;
+	}
+	public bool isKeyBlock()
+	{
+		return m_isKeyBlock;
+	}
+
+	public void setYarn(bool isYarn)
+	{
+		//this.setColor(Block.COLOR.BLACK);
+		//this.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f); //털실 객체 크기 줄이기
+		//this.setShape(YarnBlockPrefab.GetComponent<MeshFilter>());
+		m_isYarn = isYarn;
+	}
+	public bool isYarn()
+	{
+		return m_isYarn;
+	}
+
+	public void setDarkCloud(bool isDarkCloud)
+	{
+		//this.setColor(Block.COLOR.BLACK);
+		//this.transform.localScale = new Vector3(1.0f, 0.5f, 1.0f); //털실 객체 크기 줄이기
+		//this.setShape(YarnBlockPrefab.GetComponent<MeshFilter>());
+		m_isDarkCloud = isDarkCloud;
+	}
+	public bool isDarkCloud()
+	{
+		return m_isDarkCloud;
+	}
 }
