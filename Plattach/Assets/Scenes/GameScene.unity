@@ -261,6 +261,7 @@ MonoBehaviour:
   BlockPrefab: {fileID: 4535115986040934498, guid: f990ccf1c78490a43a064206c540e905, type: 3}
   KeyBlockPrefab: {fileID: 7342059818349174485, guid: e9bd3d1a0f3c4194687facf125f86f0c, type: 3}
   levelData: {fileID: 4900000, guid: f77fec06cd1aa6d4aa6dff5caed3f751, type: 3}
+  ignite_count: 0
 --- !u!114 &413390787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -341,7 +342,8 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-  goalKeyBlock: 0
+  fevergage: 500
+  goalKeyBlock: 4
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0

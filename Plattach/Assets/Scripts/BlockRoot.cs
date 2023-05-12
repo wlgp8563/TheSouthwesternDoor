@@ -18,7 +18,9 @@ public class BlockRoot : MonoBehaviour
 	public TextAsset levelData = null; // 레벨 데이터의 텍스트를 저장.
 	public LevelControl level_control; // LevelControl를 저장.
 
-//	private int mGap;
+	public int ignite_count;
+
+	//	private int mGap;
 	private int mCurrentRowGap;
 	private int mCurrentColumnGap;
 	private int mRow;
@@ -126,7 +128,7 @@ public class BlockRoot : MonoBehaviour
 		}
 		else
 		{
-			int ignite_count = 0; // 발화 수.
+			ignite_count = 0; // 발화 수.
 								  // 그리드 안의 모든 블록에 대해서 처리.
 			foreach (BlockControl block in this.blocks)
 			{
@@ -134,11 +136,15 @@ public class BlockRoot : MonoBehaviour
 				{ // 대기 중이면 루프의 처음으로 점프하고,.
 					continue; // 다음 블록을 처리한다.
 				}
-				// 세로 또는 가로에 같은 색 블록이 세 개 이상 나열했다면.
-				if (this.checkConnection(block) || this.checkfourmatch(block))
+				// 세로 또는 가로에 같은 색 블록이 세 개 이상으로 나열했다면.
+				if (this.checkConnection(block))
 				{
 					ignite_count++; // 발화 수를 증가.
 				}
+				if(this.checkfourmatch(block))            //블록을 2X2로 나열했다면, 발화 수를 2개로 가산한다.
+                {
+					ignite_count += 2;
+                }
 			}
 			if (ignite_count > 0)
 			{ // 발화 수가 0보다 크면.
@@ -608,6 +614,10 @@ public class BlockRoot : MonoBehaviour
 		{
 			normal_block_num = 1;
 		}
+        else
+        {
+			return false;
+        }
 		// 그리드 좌표를 기억해 둔다.
 		int rx;
 		int lx;
@@ -689,7 +699,7 @@ public class BlockRoot : MonoBehaviour
 			if (!next_block.isVanishing()) { normal_block_num++; }
 			uy = y;
 		}
-		/*do
+		do
 		{
 			if ((rx - lx + 1 == 2 && uy - dy + 1 == 2) && this.blocks[lx, dy].color == this.blocks[lx, dy + 1].color
 				&& this.blocks[lx, dy].color == this.blocks[lx + 1, dy].color && this.blocks[lx, dy].color == this.blocks[lx + 1, dy + 1].color)
@@ -701,91 +711,28 @@ public class BlockRoot : MonoBehaviour
 				ret = true;
 				squ = true;
 			}
-			else if ((rx - lx + 1 < 2 && uy - dy + 1 < 2) || rx - lx + 1 < 2 || uy - dy + 1 < 2)
-			{
-				break;
-			}
 			else if (normal_block_num == 0)
 			{
 				break;
 			}
 			else
 			{
+				break;
+			}
+			/*else
+			{
 				// move on to the next block
 				lx++;
 				rx++;
 				if (rx >= Block.BLOCK_NUM_X) break;
-			}
-		} while (true);*/
-
-		do  //여기다가 2X2퍼즐 맞는지 따로 do-while문으로 if문 넣었음
-		{
-			if (((rx - lx + 1 != 2) || (uy - dy + 1 != 2)) || ((rx - lx + 1 != 2) && (uy - dy + 1 != 2)) || ((rx - lx + 1 <= 2) && (uy - dy + 1 <= 2)) || (rx - lx + 1 < 2) || (uy - dy + 1 < 2))           //가로 2칸 세로2칸 동시 안가능이면
-			{
-				break;
-			}
-			if (normal_block_num == 0)
-			{
-				break;
-			}
-			for (int x = lx; x < rx + 1; x++)
-			{
-				for (int y = dy; y < uy + 1; y++)
-				{
-					this.blocks[x, y].toVanishing();
-					ret = true;
-					squ = true;
-				}
-			}
+			}*/
 		} while (false);
-
-		/*do
-		{
-			if ((rx - lx + 1 < 2 && uy - dy + 1 < 2) || rx - lx + 1 < 2 || uy - dy + 1 < 2)
-			{
-				break;
-			}
-			if (normal_block_num == 0)
-			{
-				break;
-			}
-
-			bool hasMatchingPuzzle = false;
-
-			for (int x = lx; x < rx; x++)
-			{
-				for (int y = dy; y < uy; y++)
-				{
-					if (this.blocks[x, y].color == this.blocks[x + 1, y].color &&
-						this.blocks[x, y].color == this.blocks[x, y + 1].color &&
-						this.blocks[x, y].color == this.blocks[x + 1, y + 1].color)
-					{
-						// 2x2 매치 발견
-						this.blocks[x, y].toVanishing();
-						this.blocks[x + 1, y].toVanishing();
-						this.blocks[x, y + 1].toVanishing();
-						this.blocks[x + 1, y + 1].toVanishing();
-
-						hasMatchingPuzzle = true;
-						ret = true;
-						squ = true;
-					}
-				}
-			}
-
-			// 만약 매치가 발견되지 않았다면 루프를 종료합니다.
-			if (!hasMatchingPuzzle)
-			{
-				break;
-			}
-		} while (true);*/
 		return (ret);
 	}
 
 	public bool checkConnection(BlockControl start)
 	{
 		bool ret = false;
-		//bool squ = false;  //square 정사각형모양이 되는지 안되는지 체크하기 위한 bool값으로 처음에는 false로 시작해 정사각형 되면 true로 바꾼다 
 		int normal_block_num = 0;
 		// 인수인 블록이 발화 후가 아니면.
 		if (!start.isVanishing())
@@ -919,45 +866,6 @@ public class BlockRoot : MonoBehaviour
 				ret = true;
 			}
 		} while (false);
-
-		/*do
-		{
-			if ((rx - lx + 1 < 2 && uy - dy + 1 < 2) || rx - lx + 1 < 2 || uy - dy + 1 < 2) // 이 부분 변경
-			{
-				break;
-			}
-			if (normal_block_num == 0)
-			{
-				break;
-			}
-
-			bool isTwoByTwo = (rx - lx + 1 == 2 && uy - dy + 1 == 2); // 추가
-			if (isTwoByTwo) // 추가
-			{
-				// 2*2 매치의 경우 블록을 모두 삭제하고, ret과 squ도 true로 설정합니다.
-				for (int x = lx; x < rx + 1; x++)
-				{
-					for (int y = dy; y < uy + 1; y++)
-					{
-						this.blocks[x, y].toVanishing();
-					}
-				}
-				ret = true;
-				squ = true;
-			}
-			else // 2*2 매치가 아닌 경우 기존의 코드를 실행합니다.
-			{
-				for (int x = lx; x < rx + 1; x++)
-				{
-					for (int y = dy; y < uy + 1; y++)
-					{
-						this.blocks[x, y].toVanishing();
-						ret = true;
-						squ = true;
-					}
-				}
-			}
-		} while (false);*/
 		return (ret);
 	}
 
@@ -1043,6 +951,19 @@ public class BlockRoot : MonoBehaviour
 
 		checkKeyBlock(block0, block1); //떨어지는 애들 키 블럭 체크
 	}
+
+	public void catblock_condition()
+    {
+		if(ignite_count >= 5)
+        {
+			catblock();
+        }
+    }
+
+	public void catblock()
+    {
+
+    }
 
 
 	private bool is_has_sliding_block_in_column(int x)
