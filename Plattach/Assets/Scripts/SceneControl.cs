@@ -113,16 +113,20 @@ public class SceneControl : MonoBehaviour
                         if (level == 1)
                         {
 							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
 							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
 						}
 						else if(level==2)
                         {
-							scoreManager.UpdateLevelTwoScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
 							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
 						}
 					}
 					else if (this.move_counter.isLeftMovesZero()) //나중에 && !this.TargetCounter.isTargetClear() 넣기
 					{
+						scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+						scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
 						this.next_step = STEP.FAIL;
 					}
 					if(this.move_counter.getLeftMoves() == horizontalSplitMoves)
@@ -149,6 +153,10 @@ public class SceneControl : MonoBehaviour
 					this.block_root.enabled = false;
 					// 경과 시간을 클리어 시간으로 설정.
 					this.clear_time = this.step_timer;
+					this.step_timer = 0.0f;
+					break;
+				case STEP.FAIL:
+					this.block_root.enabled = false;
 					this.step_timer = 0.0f;
 					break;
 			}
@@ -180,6 +188,13 @@ public class SceneControl : MonoBehaviour
 					Screen.width / 2.0f - 80.0f, 40.0f, 200.0f, 20.0f),
 						  "클리어 시간" + Mathf.CeilToInt(this.clear_time).ToString() +
 						  "초", guistyle);
+				GUI.color = Color.white;
+				break;
+			case STEP.FAIL:
+				GUI.color = Color.black;
+				GUI.Label(new Rect(
+					Screen.width / 2.0f - 80.0f, 20.0f, 200.0f, 20.0f),
+						  "실패 ㅠ.ㅠ", guistyle);
 				GUI.color = Color.white;
 				break;
 		}

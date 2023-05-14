@@ -355,6 +355,8 @@ MonoBehaviour:
     m_StretchWidth: 1
     m_StretchHeight: 0
   finalScore: 0
+  finalLeftMoves: 0
+  realFinalScore: 0
 --- !u!4 &187572347
 Transform:
   m_ObjectHideFlags: 0
@@ -363,7 +365,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 187572345}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 439, y: 412, z: 0}
+  m_LocalPosition: {x: 800, y: 520, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -760,6 +762,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d1113094675e4d4aad032e3d5cb4c71, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scoreManagerObject: {fileID: 0}
 --- !u!1 &911576857
 GameObject:
   m_ObjectHideFlags: 0
@@ -795,7 +798,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 880, y: 1000}
+  m_SizeDelta: {x: 1600, y: 900}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &911576859
 MonoBehaviour:
@@ -1205,6 +1208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2125e249d449ff142a49e0038ee9fc98, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  scoreManagerObject: {fileID: 0}
 --- !u!1 &1728286200
 GameObject:
   m_ObjectHideFlags: 0

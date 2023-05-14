@@ -40,12 +40,12 @@ public class TargetCounter : MonoBehaviour
 		int y = 150;
 		GUI.color = Color.black;
 		y += 90;
-		this.print_value(x + 20, y, "남은 털실을 모두 없애세요, 남은 털실:", this.leftYarn);
+		this.print_value(x + 20, y, "남은 털실을 모두 없애세요, 남은 털실", this.leftYarn);
 		y += 30;
 		if (this.block_root.KeyMode)
 		{
 			//남은 키 블럭 UI에 표시
-			this.print_value(x + 20, y, "남은 키 블럭", this.goalKeyBlock);
+			this.print_value(x + 20, y, "남은 털실을 모두 없애세요, 남은 키 블럭", this.goalKeyBlock);
 			y += 30;
 		}
 	}

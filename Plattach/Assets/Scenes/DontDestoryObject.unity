@@ -153,6 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CurrentScore: 0
+  CurrentMoves: 0
 --- !u!4 &2009743221
 Transform:
   m_ObjectHideFlags: 0

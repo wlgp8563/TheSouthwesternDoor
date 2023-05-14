@@ -247,8 +247,8 @@ MonoBehaviour:
   row: 5
   column: 5
   timeLimit: 210
-  horizontalSplitMoves: 5
-  verticalSplitMoves: 10
+  horizontalSplitMoves: 10
+  verticalSplitMoves: 15
 --- !u!114 &413390786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -364,8 +364,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22fcaea3d25dd1e4f9aab2bc68b65d62, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  limitMoves: 30
-  leftMoveScore: 0
+  limitMoves: 25
   guistyle:
     m_Name: 
     m_Normal:
@@ -433,6 +432,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
+  scoreManagerObject: {fileID: 0}
 --- !u!114 &413390789
 MonoBehaviour:
   m_ObjectHideFlags: 0
