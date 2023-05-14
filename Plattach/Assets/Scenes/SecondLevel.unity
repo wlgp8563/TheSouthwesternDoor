@@ -284,7 +284,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3db05529a0c8e04b8829eae9eab0424, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InitYarn: 2
+  InitYarn: 4
   guistyle:
     m_Name: 
     m_Normal:
@@ -339,7 +339,7 @@ MonoBehaviour:
       m_Right: 0
       m_Top: 0
       m_Bottom: 0
-    m_Font: {fileID: 0}
+    m_Font: {fileID: 12800000, guid: c247ec571c4e8174cbe5ff5b414a4800, type: 3}
     m_FontSize: 0
     m_FontStyle: 0
     m_Alignment: 0
@@ -366,6 +366,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   limitMoves: 30
+  leftMoveScore: 0
   guistyle:
     m_Name: 
     m_Normal:
@@ -420,7 +421,7 @@ MonoBehaviour:
       m_Right: 0
       m_Top: 0
       m_Bottom: 0
-    m_Font: {fileID: 0}
+    m_Font: {fileID: 12800000, guid: c620b83b869e0a14ba5b49891ed762ac, type: 3}
     m_FontSize: 0
     m_FontStyle: 0
     m_Alignment: 0
@@ -500,7 +501,7 @@ MonoBehaviour:
       m_Right: 0
       m_Top: 0
       m_Bottom: 0
-    m_Font: {fileID: 0}
+    m_Font: {fileID: 12800000, guid: c620b83b869e0a14ba5b49891ed762ac, type: 3}
     m_FontSize: 0
     m_FontStyle: 0
     m_Alignment: 0
@@ -513,6 +514,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
+  scoreManagerObject: {fileID: 0}
   bonusCount: 0
 --- !u!114 &1161210081
 MonoBehaviour:
@@ -527,6 +529,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   level: 2
+  scoreManagerObject: {fileID: 0}
   step: -1
   next_step: -1
   step_timer: 0
@@ -584,7 +587,7 @@ MonoBehaviour:
       m_Right: 0
       m_Top: 0
       m_Bottom: 0
-    m_Font: {fileID: 0}
+    m_Font: {fileID: 12800000, guid: c620b83b869e0a14ba5b49891ed762ac, type: 3}
     m_FontSize: 0
     m_FontStyle: 0
     m_Alignment: 0
