@@ -129,11 +129,11 @@ public class SceneControl : MonoBehaviour
 						scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
 						this.next_step = STEP.FAIL;
 					}
-					if(this.move_counter.getLeftMoves() == horizontalSplitMoves)
+					if(this.move_counter.getMoves() == horizontalSplitMoves)
                     {
 						block_root.horizontalSplitSetUp(changedGap);
 					}
-					if(this.move_counter.getLeftMoves() == verticalSplitMoves)
+					if(this.move_counter.getMoves() == verticalSplitMoves)
                     {
 						block_root.verticalSplitSetUp(changedGap);
 					}

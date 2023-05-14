@@ -45,7 +45,7 @@ public class TargetCounter : MonoBehaviour
 		if (this.block_root.KeyMode)
 		{
 			//남은 키 블럭 UI에 표시
-			this.print_value(x + 20, y, "남은 털실을 모두 없애세요, 남은 키 블럭", this.goalKeyBlock);
+			this.print_value(x + 20, y, "남은 키 블럭을 모두 없애세요, 남은 키 블럭", this.goalKeyBlock);
 			y += 30;
 		}
 	}

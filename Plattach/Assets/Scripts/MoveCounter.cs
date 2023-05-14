@@ -13,12 +13,14 @@ public class MoveCounter : MonoBehaviour
 	private BlockRoot block_root = null;
 	public GameObject scoreManagerObject;
 	private ScoreManager scoreManager;
+	private int moves;
 	void Start()
 	{
 		scoreManagerObject = GameObject.Find("ScoreManager");
 		this.scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
 		this.block_root = this.gameObject.GetComponent<BlockRoot>();
 		this.leftMoves = this.limitMoves + this.scoreManager.GetCurrentMoves();
+		moves = 0;
 	}
 
 	void OnGUI()
@@ -41,6 +43,7 @@ public class MoveCounter : MonoBehaviour
 	public void minusLeftMoves()
 	{
 		this.leftMoves--;
+		moves++;
 	}
 	public void plusLeftMoves()
 	{
@@ -50,7 +53,11 @@ public class MoveCounter : MonoBehaviour
 	{
 		return this.leftMoves;
 	}
-	
+	public int getMoves() //현재 라운드에서 이 함수가 출력한 시점 까지의 총 이동한 횟수를 리턴
+	{
+		return moves;
+	}
+
 	public bool isLeftMovesZero()
 	{
 		
