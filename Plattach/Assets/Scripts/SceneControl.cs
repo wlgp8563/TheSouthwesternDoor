@@ -8,6 +8,9 @@ public class SceneControl : MonoBehaviour
 	private MoveCounter move_counter = null;
 	private TargetCounter target_counter = null;
 	public int level;
+	public GameObject scoreManagerObject;
+	private ScoreManager scoreManager;
+
 	public enum STEP
 	{
 		NONE = -1, // 상태 정보 없음.
@@ -58,6 +61,10 @@ public class SceneControl : MonoBehaviour
 		// MoveCounter를 가져온다.
 		this.target_counter = this.gameObject.GetComponent<TargetCounter>();
 
+		//socreManger을 찾아서 가져온다.
+		scoreManagerObject = GameObject.Find("ScoreManager");
+		this.scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
+
 		this.next_step = STEP.PLAY; // 다음 상태를 '플레이 중'으로.
 		this.guistyle.fontSize = 24; // 폰트 크기를 24로.
 	}
@@ -78,7 +85,7 @@ public class SceneControl : MonoBehaviour
 			case STEP.LEVEL2CLEAR:
 				if (Input.GetMouseButtonDown(0))
 				{
-					SceneManager.LoadScene("Clear");
+					SceneManager.LoadScene("ClearScene");
 				}
 				break;
 
@@ -103,11 +110,16 @@ public class SceneControl : MonoBehaviour
 					}*/
 					if (this.target_counter.isTargetClear())
 					{
-						if(level==1)
+                        if (level == 1)
+                        {
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
 							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
+						}
 						else if(level==2)
+                        {
+							scoreManager.UpdateLevelTwoScore(this.score_counter.GetTotalScore());
 							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
-
+						}
 					}
 					else if (this.move_counter.isLeftMovesZero()) //나중에 && !this.TargetCounter.isTargetClear() 넣기
 					{

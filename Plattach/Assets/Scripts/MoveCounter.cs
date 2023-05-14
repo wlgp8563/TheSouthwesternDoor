@@ -8,6 +8,7 @@ public class MoveCounter : MonoBehaviour
 	private int limitMoves; // 최대 이동 가능 횟수
 	private int leftMoves; // 현재 남은 이동 가능 횟수
 
+	public int leftMoveScore;  //남은 이동 횟수를 점수로 환산 
 	public GUIStyle guistyle; // 폰트 스타일.
 
 	private BlockRoot block_root = null;
@@ -47,6 +48,11 @@ public class MoveCounter : MonoBehaviour
 	{
 		return this.leftMoves;
 	}
+	public int leftMoveCount()                            //남은 이동 횟수에 10을 곱해서 점수로 만듦.
+    {
+		leftMoveScore = leftMoves * 10;
+		return leftMoveScore;
+    }
 	public bool isLeftMovesZero()
 	{
 		

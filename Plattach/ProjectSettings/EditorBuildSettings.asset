@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/ClearScene.unity
     guid: 42ed72ca9ca0e194d8339707a359d877
+  - enabled: 1
+    path: Assets/Scenes/DontDestoryObject.unity
+    guid: b83aa233dc70c314ab2f163377df2079
   m_configObjects: {}

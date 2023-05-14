@@ -12,19 +12,28 @@ public class ScoreCounter : MonoBehaviour
 		public int score; // 점수.
 		public int total_score; // 합계 점수.
 		public int bonus_gage;
+		//public int moveleft_score;
 	};
 	public Count last; // 마지막(이번) 점수.
 	public Count best; // 최고 점수.
 	public static int QUOTA_SCORE = 1000; // 클리어에 필요한 점수.
-	public GUIStyle guistyle; // 폰트 스타일.
+	public GUIStyle guistyle; // 폰트 스타일.;
 
 	private BlockRoot block_root = null;
 	private MoveCounter move_counter = null;
+	private MoveCounter left_counter = null;
+	public GameObject scoreManagerObject;
+	private ScoreManager scoreManager;
 	public int bonusCount = 0;
+	//public int level;
+	//public int moveleft_score;
 	void Start()
 	{
+		this.left_counter = this.gameObject.GetComponent<MoveCounter>();
 		this.block_root = this.gameObject.GetComponent<BlockRoot>();
 		this.move_counter = this.gameObject.GetComponent<MoveCounter>();
+		scoreManagerObject = GameObject.Find("ScoreManager");
+		this.scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
 		this.last.ignite = 0;
 		this.last.score = 0;
 		this.last.total_score = 0;
@@ -43,7 +52,6 @@ public class ScoreCounter : MonoBehaviour
 		y += 30;
 		this.print_value(x + 20, y, "합계 스코어", this.last.total_score);
 		y += 30;
-
 		this.print_value(x + 20, y, "보너스 이동 게이지", (float)this.last.bonus_gage / bonusNorm * 100);
 	}
 	public void print_value(int x, int y, string label, float value)
@@ -74,9 +82,22 @@ public class ScoreCounter : MonoBehaviour
 	public void updateTotalScore()
 	{
 		this.last.total_score += this.last.score; // 합계 스코어를 갱신.
-		this.last.bonus_gage = this.last.total_score - (bonusNorm * bonusCount);
+		//this.last.bonus_gage = this.last.total_score - (bonusNorm * bonusCount);
 		Fever_time();
 	}
+	public int updateBonusGage()
+	{
+		return this.last.bonus_gage = this.last.total_score - (bonusNorm * bonusCount);
+	}
+    public int GetTotalScore()
+    {
+		return this.last.total_score;
+    }
+	/*public int GetLevelTwoScore(int currentScore)
+    {
+		
+		return 
+    }*/
 	public bool isGameClear()
 	{
 		bool is_clear = false;
