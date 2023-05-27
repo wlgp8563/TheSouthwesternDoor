@@ -37,31 +37,31 @@ public class ScoreCounter : MonoBehaviour
 		this.last.ignite = 0;
 		this.last.score = 0;
 		this.last.total_score = 0;
-		this.guistyle.fontSize = 16;
+		this.guistyle.fontSize = 25;
 		this.last.bonus_gage = 0;
 	}
 
 	void OnGUI()
 	{
-		int x = 20;
-		int y = 50;
+		int x = 10;
+		int y = 145;
 		GUI.color = Color.black;
 		this.print_value(x + 20, y, "발화 카운트", this.last.ignite);
-		y += 30;
+		y += 45;
 		this.print_value(x + 20, y, "가산 스코어", this.last.score);
-		y += 30;
+		y += 45;
 		this.print_value(x + 20, y, "합계 스코어", this.last.total_score);
-		y += 30;
+		y += 45;
 		this.print_value(x + 20, y, "보너스 이동 게이지", (float)this.last.bonus_gage / bonusNorm * 100);
 	}
 	public void print_value(int x, int y, string label, float value)
 	{
 		// label을 표시.
 		GUI.Label(new Rect(x, y, 100, 20), label, guistyle);
-		y += 15;
+		y += 25;
 		// 다음 행에 value를 표시.
 		GUI.Label(new Rect(x + 20, y, 100, 20), value.ToString(), guistyle);
-		y += 15;
+		y += 25;
 	}
 	public void addIgniteCount(int count)
 	{

@@ -66,7 +66,7 @@ public class SceneControl : MonoBehaviour
 		this.scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
 
 		this.next_step = STEP.PLAY; // 다음 상태를 '플레이 중'으로.
-		this.guistyle.fontSize = 24; // 폰트 크기를 24로.
+		this.guistyle.fontSize = 30; // 폰트 크기를 24로.
 	}
 
 	void Update()
@@ -162,7 +162,7 @@ public class SceneControl : MonoBehaviour
 			case STEP.PLAY:
 				GUI.color = Color.black;
 				// 경과 시간을 표시.
-				GUI.Label(new Rect(40.0f, 10.0f, 200.0f, 20.0f),
+				GUI.Label(new Rect(30.0f, 10.0f, 200.0f, 20.0f),
 						  "경과 시간" + Mathf.CeilToInt(this.step_timer).ToString() + "초",
 						  guistyle);
 				GUI.color = Color.white;
