@@ -236,11 +236,12 @@ public class BlockRoot : MonoBehaviour
 			// 보충처리.
 			for (int x = 0; x < Block.BLOCK_NUM_X; x++)
 			{
-				int fall_start_y = Block.BLOCK_NUM_Y;
-				for (int y = Block.BLOCK_NUM_Y-1; y >= 0; y--) //이렇게 바꿈으로써 아래부터 채워지게 됨
+				int fall_start_y = Block.BLOCK_NUM_Y + 1; //이부분 수정해서 리스폰 위치 맨 윗줄 +1 되게 함
+				//for (int y = Block.BLOCK_NUM_Y-1; y >= 0; y--) //이렇게 바꿈으로써 아래부터 채워지게 됨
+				for (int y = 0; y < Block.BLOCK_NUM_Y; y++)
 				{
-					if (blocks[x, y].isDarkCloud()) //먹구름 아래 있는 블럭은 채워주지 않음
-						break;
+					/*if (blocks[x, y].isDarkCloud()) //먹구름 아래 있는 블럭은 채워주지 않음
+						break;*/
 					// 비표시 블록이 아니라면 다음 블록으로.
 					if (!this.blocks[x, y].isVacant())
 					{
@@ -327,14 +328,16 @@ public class BlockRoot : MonoBehaviour
 		}*/
 
 		//split 상태이든 아니든 y좌표가 0이여야만 발화
-		if (block0.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
-				block0.i_pos.arrY == 0)
+		/*if (block0.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+				block0.i_pos.arrY == 0)*/
+		if (block0.isKeyBlock() && block0.i_pos.arrY == 0)
 		{
 			block0.toVanishing();
 		}
 
-		if (block1.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
-			block1.i_pos.arrY == 0)
+		/*if (block1.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
+			block1.i_pos.arrY == 0)*/
+		if (block1.isKeyBlock() && block1.i_pos.arrY == 0)
 		{
 			block1.toVanishing();
 		}
@@ -1045,11 +1048,23 @@ public class BlockRoot : MonoBehaviour
 	public void fallBlock(
 		BlockControl block0, Block.DIR4 dir, BlockControl block1)
 	{
-		if (block0.isDarkCloud() || block1.isDarkCloud())
-			return;
+		/*if (block0.isDarkCloud() || block1.isDarkCloud())
+			return;*/
 		// block0과 block1의 색, 크기, 사라질 때까지 걸리는 시간, 표시, 비표시, 상태를 기록.
 		Block.COLOR color0 = block0.color;
 		Block.COLOR color1 = block1.color;
+
+		// 각 블록의 메쉬를 기억해 둔다
+		Mesh block0Mesh = block0.gameObject.GetComponent<MeshFilter>().sharedMesh;
+		Mesh block1Mesh = block1.gameObject.GetComponent<MeshFilter>().sharedMesh;
+
+		bool isKey0 = block0.isKeyBlock();
+		bool isKey1 = block1.isKeyBlock();
+		bool isYarn0 = block0.isYarn();
+		bool isYarn1 = block1.isYarn();
+		bool isCloud0 = block0.isDarkCloud();
+		bool isCloud1 = block1.isDarkCloud();
+
 		Vector3 scale0 = block0.transform.localScale;
 		Vector3 scale1 = block1.transform.localScale;
 		float vanish_timer0 = block0.vanish_timer;
@@ -1059,23 +1074,21 @@ public class BlockRoot : MonoBehaviour
 		Block.STEP step0 = block0.step;
 		Block.STEP step1 = block1.step;
 
-		bool isKey0 = block0.isKeyBlock();
-		bool isKey1 = block1.isKeyBlock();
-		bool isYarn0 = block0.isYarn();
-		bool isYarn1 = block1.isYarn();
+		// block0과 block1의 각종 속성을 교체한다.
+		block0.setColor(color1);
+		block1.setColor(color0);
 
-		// 각 블록의 메쉬를 기억해 둔다
-		Mesh block0Mesh = block0.gameObject.GetComponent<MeshFilter>().sharedMesh;
-		Mesh block1Mesh = block1.gameObject.GetComponent<MeshFilter>().sharedMesh;
+		//메쉬 필터를 통한 외형 변경
+		block0.GetComponent<MeshFilter>().sharedMesh = block1Mesh;
+		block1.GetComponent<MeshFilter>().sharedMesh = block0Mesh;
 
 		block0.setKeyBlock(isKey1);
 		block1.setKeyBlock(isKey0);
 		block0.setYarn(isYarn1);
 		block1.setYarn(isYarn0);
+		block0.setDarkCloud(isCloud1);
+		block1.setDarkCloud(isCloud0);
 
-		// block0과 block1의 각종 속성을 교체한다.
-		block0.setColor(color1);
-		block1.setColor(color0);
 		block0.transform.localScale = scale1;
 		block1.transform.localScale = scale0;
 		block0.vanish_timer = vanish_timer1;
@@ -1086,11 +1099,7 @@ public class BlockRoot : MonoBehaviour
 		block1.step = step0;
 		block0.beginFall(block1);
 
-		//메쉬 필터를 통한 외형 변경
-		block0.GetComponent<MeshFilter>().sharedMesh = block1Mesh;
-		block1.GetComponent<MeshFilter>().sharedMesh = block0Mesh;
-
-		if(KeyMode)
+		if (KeyMode)
 			checkKeyBlock(block0, block1); //떨어지는 애들 키 블럭 체크
 	}
 

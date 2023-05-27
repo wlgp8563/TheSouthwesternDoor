@@ -6,7 +6,7 @@ using System.Collections;
 public class Block
 {
 	public static float COLLISION_SIZE = 1.0f; // 블록의 충돌 크기.
-	public static float VANISH_TIME = 3.0f; // 발화하고 사라지는 시간.
+	public static float VANISH_TIME = 0.25f; // 발화하고 사라지는 시간.
 	public struct iPosition
 	{ // 그리드에서의 좌표를 나타내는 구조체.
 		public int arrX; // X좌표.
@@ -265,7 +265,7 @@ public class BlockControl : MonoBehaviour
 				break;
 			case Block.STEP.FALL:
 				// 속도에 중력의 영향을 준다.
-				this.fall.velocity += Physics.gravity.y * Time.deltaTime * 0.3f;
+				this.fall.velocity += Physics.gravity.y * Time.deltaTime * 2.0f;
 				// 세로 방향 위치를 계산.
 				this.position_offset.y += this.fall.velocity * Time.deltaTime;
 				if (this.position_offset.y < 0.0f)
@@ -324,7 +324,7 @@ public class BlockControl : MonoBehaviour
 		{ // 칠할 색에 따라서 분기한다.
 			default:
 			case Block.COLOR.PINK:
-				color_value = new Color(1.0f, 0.5f, 0.5f);
+				color_value = new Color(1.0f, 0.1f, 0.2f);
 				break;
 			case Block.COLOR.BLUE:
 				color_value = Color.blue;
@@ -339,7 +339,7 @@ public class BlockControl : MonoBehaviour
 				color_value = Color.magenta;
 				break;
 			case Block.COLOR.ORANGE:
-				color_value = new Color(1.0f, 0.46f, 0.0f);
+				color_value = new Color(1.0f, 0.5f, 0.0f);
 				break;
 			case Block.COLOR.BLACK:
 				color_value = Color.black;

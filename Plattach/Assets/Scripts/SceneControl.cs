@@ -103,43 +103,18 @@ public class SceneControl : MonoBehaviour
 			switch (this.step)
 			{
 				case STEP.PLAY:
-					// 클리어 조건을 만족하면.
-					/*if (this.score_counter.isGameClear())
+					if (this.move_counter.getMoves() == horizontalSplitMoves)
 					{
-						this.next_step = STEP.CLEAR; // 클리어 상태로 이행.
-					}*/
-					if (this.target_counter.isTargetClear())
-					{
-                        if (level == 1)
-                        {
-							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
-							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
-						}
-						else if(level==2)
-                        {
-							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
-							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
-						}
-					}
-					else if (this.move_counter.isLeftMovesZero()) //나중에 && !this.TargetCounter.isTargetClear() 넣기
-					{
-						scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-						scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
-						this.next_step = STEP.FAIL;
-					}
-					if(this.move_counter.getMoves() == horizontalSplitMoves)
-                    {
 						block_root.horizontalSplitSetUp(changedGap);
 					}
-					if(this.move_counter.getMoves() == verticalSplitMoves)
-                    {
+					if (this.move_counter.getMoves() == verticalSplitMoves)
+					{
 						block_root.verticalSplitSetUp(changedGap);
 					}
 					break;
 			}
 		}
+
 		// 상태가 변화하면------.
 		while (this.next_step != STEP.NONE)
 		{
@@ -160,6 +135,49 @@ public class SceneControl : MonoBehaviour
 					this.step_timer = 0.0f;
 					break;
 			}
+		}
+	}
+
+	public void checkClearOrOver()//발화가 모두 끝나면 실행되는 함수
+	{
+		// 상태변화대기-----.
+		if (this.next_step == STEP.NONE)
+		{
+			switch (this.step)
+			{
+				case STEP.PLAY:
+					// 클리어 조건을 만족하면.
+					if (this.target_counter.isTargetClear())
+					{
+						if (level == 1)
+						{
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
+						}
+						else if (level == 2)
+						{
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
+						}
+					}
+					if(this.move_counter.isLeftMovesZero())
+                    {
+						Invoke("checkfail", 5f);
+					}
+					break;
+			}
+		}
+	}
+
+	void checkfail()
+    {
+		if (!this.target_counter.isTargetClear())
+		{
+			scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+			scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+			this.next_step = STEP.FAIL;
 		}
 	}
 

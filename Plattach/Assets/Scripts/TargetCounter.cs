@@ -12,10 +12,12 @@ public class TargetCounter : MonoBehaviour
 
 	private BlockRoot block_root = null;
 	public int goalKeyBlock; //key block을 없앨 목표치
+	private SceneControl scene_control = null;
 
 	void Start()
 	{
 		this.block_root = this.gameObject.GetComponent<BlockRoot>();
+		this.scene_control = this.gameObject.GetComponent<SceneControl>();
 		this.leftYarn = this.InitYarn;
 	}
 
@@ -23,13 +25,19 @@ public class TargetCounter : MonoBehaviour
     {
 		int keyCount = 0;
 		int yarnCount = 0;
+		int igniteCount = 0;
 		foreach (BlockControl block in this.block_root.blocks)
 		{
 			if (block.isKeyBlock())
 				keyCount++;
 			if (block.isYarn())
 				yarnCount++;
+			if (block.isVanishing())
+				igniteCount++;
 		}
+		if (igniteCount == 0) //발화중인 블럭이 없을때마다
+			scene_control.checkClearOrOver(); // scene_control의 게임 상태를 체크하는 함수를 호출
+
 		goalKeyBlock = keyCount;
 		leftYarn = yarnCount;
 	}
