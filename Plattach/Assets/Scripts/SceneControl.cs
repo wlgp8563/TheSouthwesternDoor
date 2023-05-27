@@ -66,7 +66,7 @@ public class SceneControl : MonoBehaviour
 		this.scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
 
 		this.next_step = STEP.PLAY; // 다음 상태를 '플레이 중'으로.
-		this.guistyle.fontSize = 30; // 폰트 크기를 24로.
+		this.guistyle.fontSize = 24; // 폰트 크기를 24로.
 	}
 
 	void Update()
@@ -103,39 +103,18 @@ public class SceneControl : MonoBehaviour
 			switch (this.step)
 			{
 				case STEP.PLAY:
-					// 클리어 조건을 만족하면.
-					/*if (this.score_counter.isGameClear())
+					if (this.move_counter.getMoves() == horizontalSplitMoves)
 					{
-						this.next_step = STEP.CLEAR; // 클리어 상태로 이행.
-					}*/
-					if (this.target_counter.isTargetClear())
-					{
-                        if (level == 1)
-                        {
-							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
-						}
-						else if(level==2)
-                        {
-							scoreManager.UpdateLevelTwoScore(this.score_counter.GetTotalScore());
-							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
-						}
-					}
-					else if (this.move_counter.isLeftMovesZero()) //나중에 && !this.TargetCounter.isTargetClear() 넣기
-					{
-						this.next_step = STEP.FAIL;
-					}
-					if(this.move_counter.getLeftMoves() == horizontalSplitMoves)
-                    {
 						block_root.horizontalSplitSetUp(changedGap);
 					}
-					if(this.move_counter.getLeftMoves() == verticalSplitMoves)
-                    {
+					if (this.move_counter.getMoves() == verticalSplitMoves)
+					{
 						block_root.verticalSplitSetUp(changedGap);
 					}
 					break;
 			}
 		}
+
 		// 상태가 변화하면------.
 		while (this.next_step != STEP.NONE)
 		{
@@ -151,7 +130,54 @@ public class SceneControl : MonoBehaviour
 					this.clear_time = this.step_timer;
 					this.step_timer = 0.0f;
 					break;
+				case STEP.FAIL:
+					this.block_root.enabled = false;
+					this.step_timer = 0.0f;
+					break;
 			}
+		}
+	}
+
+	public void checkClearOrOver()//발화가 모두 끝나면 실행되는 함수
+	{
+		// 상태변화대기-----.
+		if (this.next_step == STEP.NONE)
+		{
+			switch (this.step)
+			{
+				case STEP.PLAY:
+					// 클리어 조건을 만족하면.
+					if (this.target_counter.isTargetClear())
+					{
+						if (level == 1)
+						{
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
+						}
+						else if (level == 2)
+						{
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
+						}
+					}
+					if(this.move_counter.isLeftMovesZero())
+                    {
+						Invoke("checkfail", 5f);
+					}
+					break;
+			}
+		}
+	}
+
+	void checkfail()
+    {
+		if (!this.target_counter.isTargetClear())
+		{
+			scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+			scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+			this.next_step = STEP.FAIL;
 		}
 	}
 
@@ -162,7 +188,7 @@ public class SceneControl : MonoBehaviour
 			case STEP.PLAY:
 				GUI.color = Color.black;
 				// 경과 시간을 표시.
-				GUI.Label(new Rect(30.0f, 10.0f, 200.0f, 20.0f),
+				GUI.Label(new Rect(40.0f, 10.0f, 200.0f, 20.0f),
 						  "경과 시간" + Mathf.CeilToInt(this.step_timer).ToString() + "초",
 						  guistyle);
 				GUI.color = Color.white;
@@ -180,6 +206,13 @@ public class SceneControl : MonoBehaviour
 					Screen.width / 2.0f - 80.0f, 40.0f, 200.0f, 20.0f),
 						  "클리어 시간" + Mathf.CeilToInt(this.clear_time).ToString() +
 						  "초", guistyle);
+				GUI.color = Color.white;
+				break;
+			case STEP.FAIL:
+				GUI.color = Color.black;
+				GUI.Label(new Rect(
+					Screen.width / 2.0f - 80.0f, 20.0f, 200.0f, 20.0f),
+						  "실패 ㅠ.ㅠ", guistyle);
 				GUI.color = Color.white;
 				break;
 		}

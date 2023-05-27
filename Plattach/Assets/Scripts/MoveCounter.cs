@@ -8,22 +8,25 @@ public class MoveCounter : MonoBehaviour
 	private int limitMoves; // 최대 이동 가능 횟수
 	private int leftMoves; // 현재 남은 이동 가능 횟수
 
-	public int leftMoveScore;  //남은 이동 횟수를 점수로 환산 
 	public GUIStyle guistyle; // 폰트 스타일.
 
 	private BlockRoot block_root = null;
-
+	public GameObject scoreManagerObject;
+	private ScoreManager scoreManager;
+	private int moves;
 	void Start()
 	{
+		scoreManagerObject = GameObject.Find("ScoreManager");
+		this.scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
 		this.block_root = this.gameObject.GetComponent<BlockRoot>();
-		this.leftMoves = this.limitMoves;
-		this.guistyle.fontSize = 25;
+		this.leftMoves = this.limitMoves + this.scoreManager.GetCurrentMoves();
+		moves = 0;
 	}
 
 	void OnGUI()
 	{
-		int x = 10;
-		int y = 330;
+		int x = 20;
+		int y = 200;
 		GUI.color = Color.black;
 		this.print_value(x + 20, y, "남은 이동 횟수", this.leftMoves);
 	}
@@ -32,14 +35,15 @@ public class MoveCounter : MonoBehaviour
 	{
 		// label을 표시.
 		GUI.Label(new Rect(x, y, 100, 20), label, guistyle);
-		y += 25;
+		y += 15;
 		// 다음 행에 value를 표시.
 		GUI.Label(new Rect(x + 20, y, 100, 20), value.ToString(), guistyle);
-		y += 25;
+		y += 15;
 	}
 	public void minusLeftMoves()
 	{
 		this.leftMoves--;
+		moves++;
 	}
 	public void plusLeftMoves()
 	{
@@ -49,11 +53,11 @@ public class MoveCounter : MonoBehaviour
 	{
 		return this.leftMoves;
 	}
-	public int leftMoveCount()                            //남은 이동 횟수에 10을 곱해서 점수로 만듦.
-    {
-		leftMoveScore = leftMoves * 10;
-		return leftMoveScore;
-    }
+	public int getMoves() //현재 라운드에서 이 함수가 출력한 시점 까지의 총 이동한 횟수를 리턴
+	{
+		return moves;
+	}
+
 	public bool isLeftMovesZero()
 	{
 		

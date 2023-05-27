@@ -27,6 +27,10 @@ public class ScoreCounter : MonoBehaviour
 	public int bonusCount = 0;
 	//public int level;
 	//public int moveleft_score;
+	Rect rScrollRect;  // 화면상의 스크롤 뷰의 위치
+	Rect rScrollArea; // 총 스크롤 되는 공간
+	Vector2 vScrollPos; // 스크롤 바의 위치
+	float hSbarValue;
 	void Start()
 	{
 		this.left_counter = this.gameObject.GetComponent<MoveCounter>();
@@ -36,32 +40,39 @@ public class ScoreCounter : MonoBehaviour
 		this.scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
 		this.last.ignite = 0;
 		this.last.score = 0;
-		this.last.total_score = 0;
-		this.guistyle.fontSize = 25;
+		this.last.total_score = this.scoreManager.GetCurrentScore();
+		this.guistyle.fontSize = 16;
 		this.last.bonus_gage = 0;
 	}
 
 	void OnGUI()
 	{
-		int x = 10;
-		int y = 145;
+		int x = 20;
+		int y = 50;
 		GUI.color = Color.black;
 		this.print_value(x + 20, y, "발화 카운트", this.last.ignite);
-		y += 45;
+		y += 30;
 		this.print_value(x + 20, y, "가산 스코어", this.last.score);
-		y += 45;
+		y += 30;
 		this.print_value(x + 20, y, "합계 스코어", this.last.total_score);
-		y += 45;
+		y += 30;
 		this.print_value(x + 20, y, "보너스 이동 게이지", (float)this.last.bonus_gage / bonusNorm * 100);
+
+		/*rScrollRect = new Rect(100, 100, 400, 400); // 화면상의 100, 100, 400, 400 의 위치에 스크롤 공간을 잡는다.
+		rScrollArea = new Rect(0, 0, 500, 700);      // 100, 100 을 기준으로, 0, 0, 500, 700 만큼의 스크롤 되는 content의 공간을 잡는다.
+		vScrollPos = GUI.BeginScrollView(rScrollRect, vScrollPos, rScrollArea);
+		GUI.EndScrollView();*/
+
+		hSbarValue = GUI.HorizontalScrollbar(new Rect(25, 170, 100, 30), 0.0f, (float)this.last.bonus_gage / bonusNorm, 0.0f, 1.0f);
 	}
 	public void print_value(int x, int y, string label, float value)
 	{
 		// label을 표시.
 		GUI.Label(new Rect(x, y, 100, 20), label, guistyle);
-		y += 25;
+		y += 15;
 		// 다음 행에 value를 표시.
 		GUI.Label(new Rect(x + 20, y, 100, 20), value.ToString(), guistyle);
-		y += 25;
+		y += 15;
 	}
 	public void addIgniteCount(int count)
 	{
@@ -82,13 +93,10 @@ public class ScoreCounter : MonoBehaviour
 	public void updateTotalScore()
 	{
 		this.last.total_score += this.last.score; // 합계 스코어를 갱신.
-		//this.last.bonus_gage = this.last.total_score - (bonusNorm * bonusCount);
+		this.last.bonus_gage = (this.last.total_score - this.scoreManager.GetCurrentScore()) - (bonusNorm * bonusCount);
 		Fever_time();
 	}
-	public int updateBonusGage()
-	{
-		return this.last.bonus_gage = this.last.total_score - (bonusNorm * bonusCount);
-	}
+
     public int GetTotalScore()
     {
 		return this.last.total_score;
@@ -111,12 +119,11 @@ public class ScoreCounter : MonoBehaviour
 
     public void Fever_time()
 	{
-		if (bonusNorm * (bonusCount + 1) <= this.last.total_score)
+		if (bonusNorm * (bonusCount + 1) <= this.last.total_score - this.scoreManager.GetCurrentScore())
 		{
 			this.last.bonus_gage = 0;
 			move_counter.plusLeftMoves();
 			bonusCount++;
 		}
 	}
-
 }
