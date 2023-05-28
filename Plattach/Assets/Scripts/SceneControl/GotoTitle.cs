@@ -16,6 +16,14 @@ public class GotoTitle : MonoBehaviour
     {
         scoreManager.InitiateCurrentScore();
         scoreManager.InitiateCurrentMoves();
+
+        StartCoroutine(GotoTitleScene());
+        
+    }
+
+    IEnumerator GotoTitleScene()
+    {
+        yield return new WaitForSeconds(1.0f);
         SceneManager.LoadScene("TitleScene");
     }
 }

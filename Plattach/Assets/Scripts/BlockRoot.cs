@@ -31,12 +31,17 @@ public class BlockRoot : MonoBehaviour
 	private int mRow;
 	private int mColumn;
 
+	AudioSource audioSource;
+	public AudioClip targetAudio;
+	public AudioClip puzzleMatch;
+
 	void Start()
 	{
 		this.main_camera = GameObject.FindGameObjectWithTag("MainCamera");
 		this.score_counter = this.gameObject.GetComponent<ScoreCounter>();
 		this.move_counter = this.gameObject.GetComponent<MoveCounter>();
 		this.target_counter = this.gameObject.GetComponent<TargetCounter>();
+		audioSource = GetComponent<AudioSource>();
 	}
 
 
@@ -333,6 +338,8 @@ public class BlockRoot : MonoBehaviour
 		if (block0.isKeyBlock() && block0.i_pos.arrY == 0)
 		{
 			block0.toVanishing();
+			audioSource.clip = targetAudio;      //맞춰서 없어질 때 나는 소리.
+			audioSource.Play();
 		}
 
 		/*if (block1.GetComponent<MeshFilter>().sharedMesh == KeyBlockPrefab.GetComponent<MeshFilter>().sharedMesh &&
@@ -340,6 +347,8 @@ public class BlockRoot : MonoBehaviour
 		if (block1.isKeyBlock() && block1.i_pos.arrY == 0)
 		{
 			block1.toVanishing();
+			audioSource.clip = targetAudio;
+			audioSource.Play();
 		}
 	}
 
@@ -786,6 +795,8 @@ public class BlockRoot : MonoBehaviour
 				this.blocks[lx, dy + 1].toVanishing();
 				this.blocks[lx + 1, dy].toVanishing();
 				this.blocks[lx + 1, dy + 1].toVanishing();
+				audioSource.clip = puzzleMatch;
+				audioSource.Play();
 				ret = true;
 				squ = true;
 			}
@@ -893,6 +904,8 @@ public class BlockRoot : MonoBehaviour
 			{
 				// 나열된 같은 색 블록을 발화 상태로.
 				this.blocks[x, start.i_pos.arrY].toVanishing();
+				audioSource.clip = puzzleMatch;
+				audioSource.Play();
 				ret = true;
 			}
 		} while (false);
@@ -938,6 +951,8 @@ public class BlockRoot : MonoBehaviour
 			for (int y = dy; y < uy + 1; y++)
 			{
 				this.blocks[start.i_pos.arrX, y].toVanishing();
+				audioSource.clip = puzzleMatch;
+				audioSource.Play();
 				ret = true;
 			}
 		} while (false);
@@ -962,6 +977,8 @@ public class BlockRoot : MonoBehaviour
 			
 			this.blocks[lx - 1, start.i_pos.arrY].toVanishing();
 			this.blocks[lx - 1, start.i_pos.arrY].setYarn(false);
+			audioSource.clip = targetAudio;
+			audioSource.Play();
 			ret++;
 		}
 		// 블록의 오른쪽을 검사.
@@ -973,6 +990,8 @@ public class BlockRoot : MonoBehaviour
 		{ 
 			this.blocks[rx + 1, start.i_pos.arrY].toVanishing();
 			this.blocks[rx + 1, start.i_pos.arrY].setYarn(false);
+			audioSource.clip = targetAudio;
+			audioSource.Play();
 			ret++;
 		}
 		
@@ -987,6 +1006,8 @@ public class BlockRoot : MonoBehaviour
         {
 			this.blocks[start.i_pos.arrX, dy - 1].toVanishing();
 			this.blocks[start.i_pos.arrX, dy - 1].setYarn(false);
+			audioSource.clip = targetAudio;
+			audioSource.Play();
 			ret++;
 		}
 		//블록의 위쪽을 검사
@@ -998,6 +1019,8 @@ public class BlockRoot : MonoBehaviour
         {
 			this.blocks[start.i_pos.arrX, uy + 1].toVanishing();
 			this.blocks[start.i_pos.arrX, uy + 1].setYarn(false);
+			audioSource.clip = targetAudio;
+			audioSource.Play();
 			ret++;
 		}
 		return (ret);
