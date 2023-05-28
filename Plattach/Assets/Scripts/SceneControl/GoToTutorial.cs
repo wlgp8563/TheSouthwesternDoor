@@ -5,8 +5,22 @@ using UnityEngine.SceneManagement;
 
 public class GoToTutorial : MonoBehaviour
 {
-    public void OnClick()
+    public GameObject scoreManagerObject;
+    private ScoreManager scoreManager;
+    private void Start()
     {
+        scoreManagerObject = GameObject.Find("ScoreManager");
+        this.scoreManager = scoreManagerObject.GetComponent<ScoreManager>();
+    }
+
+    public void OnClick()
+    {   
+        StartCoroutine(GotoTutorialScene());
+    }
+
+    IEnumerator GotoTutorialScene()
+    {
+        yield return new WaitForSeconds(1.0f);
         SceneManager.LoadScene("Tutorial");
     }
 }

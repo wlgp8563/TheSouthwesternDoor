@@ -164,7 +164,7 @@ public class SceneControl : MonoBehaviour
 					}
 					if(this.move_counter.isLeftMovesZero())
                     {
-						Invoke("checkfail", 5f);
+						Invoke("checkfail", 1f);
 					}
 					break;
 			}
@@ -188,7 +188,7 @@ public class SceneControl : MonoBehaviour
 			case STEP.PLAY:
 				GUI.color = Color.black;
 				// 경과 시간을 표시.
-				GUI.Label(new Rect(40.0f, 10.0f, 200.0f, 20.0f),
+				GUI.Label(new Rect(30.0f, 10.0f, 200.0f, 20.0f),
 						  "경과 시간" + Mathf.CeilToInt(this.step_timer).ToString() + "초",
 						  guistyle);
 				GUI.color = Color.white;
