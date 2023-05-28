@@ -679,7 +679,7 @@ public class BlockRoot : MonoBehaviour
 		block0.setKeyBlock(isKey1);
 		block1.setKeyBlock(isKey0);
 		block0.setYarn(isYarn1);
-		block1.setKeyBlock(isYarn0);
+		block1.setYarn(isYarn0);
 
 		block0.transform.localScale = scale1; // 확대율을 교체한다.
 		block1.transform.localScale = scale0;
