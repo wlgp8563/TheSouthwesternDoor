@@ -16,6 +16,13 @@ public class GotoMain : MonoBehaviour
     {
         scoreManager.InitiateCurrentScore();
         scoreManager.InitiateCurrentMoves();
+
+        StartCoroutine(GotoMainScene());
+    }
+
+    IEnumerator GotoMainScene()
+    {
+        yield return new WaitForSeconds(1.0f);
         SceneManager.LoadScene("FirstLevel");
     }
 }

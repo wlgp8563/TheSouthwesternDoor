@@ -21,33 +21,35 @@ public class MoveCounter : MonoBehaviour
 		this.block_root = this.gameObject.GetComponent<BlockRoot>();
 		this.leftMoves = this.limitMoves + this.scoreManager.GetCurrentMoves();
 		moves = 0;
+		this.guistyle.fontSize = 30;
 	}
 
 	void OnGUI()
 	{
-		int x = 20;
-		int y = 200;
-		GUI.color = Color.black;
-		this.print_value(x + 20, y, "남은 이동 횟수", this.leftMoves);
+		this.guistyle.fontSize = 30;
+		int x = 0;
+		int y = 390;
+		GUI.color = Color.red;
+		this.print_value(x + 140, y, "남은 이동 횟수: ", this.leftMoves);
 	}
 
 	public void print_value(int x, int y, string label, int value)
 	{
 		// label을 표시.
 		GUI.Label(new Rect(x, y, 100, 20), label, guistyle);
-		y += 15;
+		//y += 30;
 		// 다음 행에 value를 표시.
-		GUI.Label(new Rect(x + 20, y, 100, 20), value.ToString(), guistyle);
-		y += 15;
+		GUI.Label(new Rect(x + 170, y, 100, 20), value.ToString(), guistyle);
+		y += 30;
 	}
 	public void minusLeftMoves()
 	{
 		this.leftMoves--;
 		moves++;
 	}
-	public void plusLeftMoves()
+	public void plusLeftMoves(int plusMove)
 	{
-		this.leftMoves++;
+		this.leftMoves += plusMove;
 	}
 	public int getLeftMoves() //남은 이동 가능 횟수를 리턴
 	{
