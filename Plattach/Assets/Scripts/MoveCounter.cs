@@ -6,7 +6,7 @@ public class MoveCounter : MonoBehaviour
 {
 	[SerializeField]
 	private int limitMoves; // 최대 이동 가능 횟수
-	private int leftMoves; // 현재 남은 이동 가능 횟수
+	public int leftMoves; // 현재 남은 이동 가능 횟수
 
 	public GUIStyle guistyle; // 폰트 스타일.
 

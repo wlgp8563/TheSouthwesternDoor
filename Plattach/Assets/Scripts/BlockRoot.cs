@@ -35,6 +35,8 @@ public class BlockRoot : MonoBehaviour
 	public AudioClip targetAudio;
 	public AudioClip puzzleMatch;
 
+	public bool isGrabbable;
+
 	void Start()
 	{
 		this.main_camera = GameObject.FindGameObjectWithTag("MainCamera");
@@ -42,6 +44,7 @@ public class BlockRoot : MonoBehaviour
 		this.move_counter = this.gameObject.GetComponent<MoveCounter>();
 		this.target_counter = this.gameObject.GetComponent<TargetCounter>();
 		audioSource = GetComponent<AudioSource>();
+		isGrabbable = true;
 	}
 
 
@@ -57,7 +60,7 @@ public class BlockRoot : MonoBehaviour
 		{ // 블록을 잡지 않았을 때.
 			if (!this.is_has_falling_block())
 			{
-				if (Input.GetMouseButtonDown(0))
+				if (Input.GetMouseButtonDown(0) && this.isGrabbable == true)
 				{ // 마우스 버튼이 눌렸다면.
 				  // blocks 배열의 모든 요소를 차례로 처리한다.
 					foreach (BlockControl block in this.blocks)

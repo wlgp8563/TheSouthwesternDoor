@@ -597,6 +597,7 @@ MonoBehaviour:
   levelData: {fileID: 4900000, guid: f77fec06cd1aa6d4aa6dff5caed3f751, type: 3}
   targetAudio: {fileID: 8300000, guid: aca69530af63bd9479f1eeb9fbf5164f, type: 3}
   puzzleMatch: {fileID: 8300000, guid: fdf871b8ef997c840b104cd26a0b75e5, type: 3}
+  isGrabbable: 0
 --- !u!114 &413390787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -695,6 +696,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   limitMoves: 30
+  leftMoves: 0
   guistyle:
     m_Name: 
     m_Normal:

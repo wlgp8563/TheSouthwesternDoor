@@ -103,6 +103,14 @@ public class SceneControl : MonoBehaviour
 			switch (this.step)
 			{
 				case STEP.PLAY:
+					if(this.move_counter.isLeftMovesZero())
+                    {
+						this.block_root.isGrabbable = false;
+					}
+					if(!this.move_counter.isLeftMovesZero())
+                    {
+						this.block_root.isGrabbable = true;
+					}
 					// 클리어 조건을 만족하면.
 					if (this.target_counter.isTargetClear())
 					{
