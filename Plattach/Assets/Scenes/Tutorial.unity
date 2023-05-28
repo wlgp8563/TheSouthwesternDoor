@@ -420,7 +420,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: "\uB0A8\uC740 \uC774\uB3D9\uD69F\uC218 * 10\uC774 \uCD5C\uC885 \uC810\uC218\uC5D0
+  m_Text: "\uB0A8\uC740 \uC774\uB3D9\uD69F\uC218 * 1000\uC774 \uCD5C\uC885 \uC810\uC218\uC5D0
     \uD569\uC0B0\uB41C\uB2E4!"
 --- !u!222 &174829383
 CanvasRenderer:

@@ -57,7 +57,7 @@ public class SceneControl : MonoBehaviour
 
 		// MoveCounter를 가져온다.
 		this.move_counter = this.gameObject.GetComponent<MoveCounter>();
-		
+
 		// MoveCounter를 가져온다.
 		this.target_counter = this.gameObject.GetComponent<TargetCounter>();
 
@@ -103,6 +103,28 @@ public class SceneControl : MonoBehaviour
 			switch (this.step)
 			{
 				case STEP.PLAY:
+					// 클리어 조건을 만족하면.
+					if (this.target_counter.isTargetClear())
+					{
+						if (level == 1)
+						{
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
+						}
+						else if (level == 2)
+						{
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
+						}
+					}
+					else if (this.move_counter.isLeftMovesZero() && !this.target_counter.isIgniting)
+					{
+						scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+						scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+						this.next_step = STEP.FAIL;
+					}
 					if (this.move_counter.getMoves() == horizontalSplitMoves)
 					{
 						block_root.horizontalSplitSetUp(changedGap);
@@ -138,49 +160,6 @@ public class SceneControl : MonoBehaviour
 		}
 	}
 
-	public void checkClearOrOver()//발화가 모두 끝나면 실행되는 함수
-	{
-		// 상태변화대기-----.
-		if (this.next_step == STEP.NONE)
-		{
-			switch (this.step)
-			{
-				case STEP.PLAY:
-					// 클리어 조건을 만족하면.
-					if (this.target_counter.isTargetClear())
-					{
-						if (level == 1)
-						{
-							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
-							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
-						}
-						else if (level == 2)
-						{
-							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
-							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
-						}
-					}
-					if(this.move_counter.isLeftMovesZero())
-                    {
-						Invoke("checkfail", 5f);
-					}
-					break;
-			}
-		}
-	}
-
-	void checkfail()
-    {
-		if (!this.target_counter.isTargetClear())
-		{
-			scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-			scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
-			this.next_step = STEP.FAIL;
-		}
-	}
-
 	void OnGUI()
 	{
 		switch (this.step)
@@ -188,7 +167,7 @@ public class SceneControl : MonoBehaviour
 			case STEP.PLAY:
 				GUI.color = Color.black;
 				// 경과 시간을 표시.
-				GUI.Label(new Rect(40.0f, 10.0f, 200.0f, 20.0f),
+				GUI.Label(new Rect(30.0f, 10.0f, 200.0f, 20.0f),
 						  "경과 시간" + Mathf.CeilToInt(this.step_timer).ToString() + "초",
 						  guistyle);
 				GUI.color = Color.white;
