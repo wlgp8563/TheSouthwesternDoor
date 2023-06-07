@@ -28,7 +28,7 @@ public class MoveCounter : MonoBehaviour
 	{
 		this.guistyle.fontSize = 30;
 		int x = 0;
-		int y = 390;
+		int y = 575;
 		GUI.color = Color.red;
 		this.print_value(x + 140, y, "남은 이동 횟수: ", this.leftMoves);
 	}
