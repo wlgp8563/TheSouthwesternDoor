@@ -21,7 +21,7 @@ MonoBehaviour:
   m_ShowMode: 4
   m_Title: Game
   m_RootView: {fileID: 2}
-  m_MinSize: {x: 875, y: 300}
+  m_MinSize: {x: 875, y: 542}
   m_MaxSize: {x: 10000, y: 10000}
   m_Maximized: 1
 --- !u!114 &2
@@ -76,7 +76,7 @@ MonoBehaviour:
   m_LoadedToolbars:
   - {fileID: 0}
   m_MainToolbar: {fileID: 0}
-  m_LastLoadedLayoutName: jihye
+  m_LastLoadedLayoutName: 
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -120,10 +120,10 @@ MonoBehaviour:
     y: 30
     width: 2560
     height: 1299
-  m_MinSize: {x: 877, y: 492}
-  m_MaxSize: {x: 18002, y: 14042}
+  m_MinSize: {x: 881, y: 492}
+  m_MaxSize: {x: 18004, y: 14042}
   vertical: 0
-  controlID: 24022
+  controlID: 63
 --- !u!114 &6
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -143,8 +143,8 @@ MonoBehaviour:
     y: 0
     width: 424
     height: 1299
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 201, y: 221}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 14}
   m_Panes:
   - {fileID: 14}
@@ -171,10 +171,10 @@ MonoBehaviour:
     y: 0
     width: 1552
     height: 1299
-  m_MinSize: {x: 402, y: 492}
+  m_MinSize: {x: 404, y: 492}
   m_MaxSize: {x: 10002, y: 14042}
   vertical: 1
-  controlID: 23956
+  controlID: 116
 --- !u!114 &8
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -196,10 +196,10 @@ MonoBehaviour:
     y: 0
     width: 1552
     height: 770
-  m_MinSize: {x: 402, y: 221}
-  m_MaxSize: {x: 8002, y: 4021}
+  m_MinSize: {x: 404, y: 221}
+  m_MaxSize: {x: 8004, y: 4021}
   vertical: 0
-  controlID: 23957
+  controlID: 117
 --- !u!114 &9
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -248,8 +248,8 @@ MonoBehaviour:
     y: 0
     width: 952
     height: 770
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 202, y: 221}
+  m_MaxSize: {x: 4002, y: 4021}
   m_ActualView: {fileID: 13}
   m_Panes:
   - {fileID: 13}
@@ -301,8 +301,8 @@ MonoBehaviour:
     y: 0
     width: 584
     height: 1299
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 71}
+  m_MaxSize: {x: 4001, y: 4021}
   m_ActualView: {fileID: 21}
   m_Panes:
   - {fileID: 21}
@@ -427,7 +427,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 06eefaff6a36fdff6637fdff8239fdff0c2efeff9637feff7c38feff4639feffbe58feff7859feff2a5afefff45afeff6c5bfeff8c5bfeffc45bfeffa45cfeff125efeff245ffeffd65ffeffa060feffae62feff8663feff1866feff9e68feff4069feff306bfeff386cfeff126efeffa46ffeff3671feffc872feffda73feff3674feff5674feffda76feff7677feff4279fefffe86feff4489feff9a95feff0e98feffc498feff789afeff849bfeff0caffeffc8bdfeff4cbefeff38c4feff3ac6feff80c6feffa0c6feff2ad1feffa6d2feff10d6feffa2d6feff98dafeffb8dafeffd8dafeff10dbfeff40dbfeff88dbfeff6ce5fefffcf1feff96f2feff3cf5feff4af6feffe6f7feff72f8feffb6fefeff10fffeff48fffeff68fffeff0606ffffc607ffff4e08ffff940affffc419ffff421dffff3836ffff9838ffff705dffffdc65ffff3883ffff1c85ffff4e85ffff1486ffffc6a7ffff00a9ffffe6b7ffff62b8ffff02cdffff9acdffff40ceffff70ceffff9ad0ffffd4d2ffffeee4ffff24eeffff5ceeffffcceeffff2efbffffc44000006e4600003e4a0000664d0000a44e0000f85100001858000034620000d4620000e4630000846400008c6500002c66000034670000d4670000e06e0000fc6f00006e7000008a710000867200009e740000ca7500004c770000dc7700005e790000e49e000028a0000036b200002cb30000
+      m_ExpandedIDs: 6cfbffff
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -757,9 +757,9 @@ MonoBehaviour:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: 383d0000
-    m_LastClickedID: 15672
-    m_ExpandedIDs: 00000000363d0000383d00003e3d000000ca9a3b
+    m_SelectedIDs: 363d0000
+    m_LastClickedID: 15670
+    m_ExpandedIDs: 00000000343d0000363d0000383d000000ca9a3b
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -787,7 +787,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000363d0000383d00003e3d000000ca9a3b
+    m_ExpandedIDs: 00000000343d0000363d0000383d0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
