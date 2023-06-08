@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SceneControl : MonoBehaviour
 {
@@ -41,6 +42,8 @@ public class SceneControl : MonoBehaviour
 	[SerializeField]
 	private float verticalSplitMoves; //남은 이동 횟수가 verticalSplit 할건지?
 
+	public Text SplitInfo;
+
 	private BlockRoot block_root = null;
 	void Start()
 	{
@@ -71,6 +74,13 @@ public class SceneControl : MonoBehaviour
 
 	void Update()
 	{
+		if (verticalSplitMoves - this.move_counter.getMoves() > 0) 
+			SplitInfo.text = (verticalSplitMoves - this.move_counter.getMoves()).ToString() + "회 이동 후\n맵이 가로로 붙습니다";
+		else if (horizontalSplitMoves - this.move_counter.getMoves() > 0)
+			SplitInfo.text = (horizontalSplitMoves - this.move_counter.getMoves()).ToString() + "회 이동 후\n맵이 세로로 붙습니다";
+		else
+			SplitInfo.text = "맵이 완전히 합쳐졌습니다!";
+
 		this.step_timer += Time.deltaTime;
 
 		switch (this.step)
