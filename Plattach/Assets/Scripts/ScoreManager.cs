@@ -9,6 +9,9 @@ public class ScoreManager : MonoBehaviour
     [SerializeField]
     private int CurrentMoves;
 
+    public int CurrentBombItem;
+    public int CurrentColorItem;
+
     // Start is called before the first frame update
 
     private void Awake()

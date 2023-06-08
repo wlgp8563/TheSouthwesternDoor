@@ -6,7 +6,7 @@ public class MoveCounter : MonoBehaviour
 {
 	[SerializeField]
 	private int limitMoves; // 최대 이동 가능 횟수
-	private int leftMoves; // 현재 남은 이동 가능 횟수
+	public int leftMoves; // 현재 남은 이동 가능 횟수
 
 	public GUIStyle guistyle; // 폰트 스타일.
 
@@ -28,7 +28,7 @@ public class MoveCounter : MonoBehaviour
 	{
 		this.guistyle.fontSize = 30;
 		int x = 0;
-		int y = 390;
+		int y = 575;
 		GUI.color = Color.red;
 		this.print_value(x + 140, y, "남은 이동 횟수: ", this.leftMoves);
 	}
@@ -47,9 +47,9 @@ public class MoveCounter : MonoBehaviour
 		this.leftMoves--;
 		moves++;
 	}
-	public void plusLeftMoves()
+	public void plusLeftMoves(int plusMove)
 	{
-		this.leftMoves++;
+		this.leftMoves += plusMove;
 	}
 	public int getLeftMoves() //남은 이동 가능 횟수를 리턴
 	{

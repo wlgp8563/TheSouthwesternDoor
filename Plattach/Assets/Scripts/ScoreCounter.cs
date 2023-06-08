@@ -35,6 +35,8 @@ public class ScoreCounter : MonoBehaviour
 
 	public Image energy;
 	public Text energypercent;
+
+	public int plusMove; 
 	void Start()
 	{
 		this.left_counter = this.gameObject.GetComponent<MoveCounter>();
@@ -130,7 +132,7 @@ public class ScoreCounter : MonoBehaviour
 		if (bonusNorm * (bonusCount + 1) <= this.last.total_score - this.scoreManager.GetCurrentScore())
 		{
 			this.last.bonus_gage = 0;
-			move_counter.plusLeftMoves();
+			move_counter.plusLeftMoves(plusMove);
 			bonusCount++;
 		}
 	}

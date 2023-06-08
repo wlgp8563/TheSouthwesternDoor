@@ -37,8 +37,6 @@ public class FinalScore : MonoBehaviour {
         finalLeftMoves = scoreManager.GetCurrentMoves();
         realFinalScore = finalScore + finalLeftMoves * 1000; //여기서 진짜 최종 점수 합산
 
-        
-
         if(realFinalScore>= threeStarScore)
         {
             scorePannel =

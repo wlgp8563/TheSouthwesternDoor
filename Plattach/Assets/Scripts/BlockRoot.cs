@@ -35,6 +35,11 @@ public class BlockRoot : MonoBehaviour
 	public AudioClip targetAudio;
 	public AudioClip puzzleMatch;
 
+	public bool isGrabbable;
+
+	public BombBtn bombBtn;
+	public ColorBtn colorBtn;
+
 	void Start()
 	{
 		this.main_camera = GameObject.FindGameObjectWithTag("MainCamera");
@@ -42,6 +47,7 @@ public class BlockRoot : MonoBehaviour
 		this.move_counter = this.gameObject.GetComponent<MoveCounter>();
 		this.target_counter = this.gameObject.GetComponent<TargetCounter>();
 		audioSource = GetComponent<AudioSource>();
+		isGrabbable = true;
 	}
 
 
@@ -57,7 +63,7 @@ public class BlockRoot : MonoBehaviour
 		{ // 블록을 잡지 않았을 때.
 			if (!this.is_has_falling_block())
 			{
-				if (Input.GetMouseButtonDown(0))
+				if (Input.GetMouseButtonDown(0) && this.isGrabbable == true)
 				{ // 마우스 버튼이 눌렸다면.
 				  // blocks 배열의 모든 요소를 차례로 처리한다.
 					foreach (BlockControl block in this.blocks)
@@ -75,6 +81,14 @@ public class BlockRoot : MonoBehaviour
 						this.grabbed_block = block;
 						// 잡았을 때의 처리를 실행.
 						this.grabbed_block.beginGrab();
+
+						//폭탄 아이템 사용으로 없애기
+						if (bombBtn.usingBombItemState&& !block.isKeyBlock())
+                        {
+							this.grabbed_block.toVanishing();
+							bombBtn.UseBombItem();
+						}
+							
 						break;
 					}
 				}
@@ -107,6 +121,15 @@ public class BlockRoot : MonoBehaviour
 				{
 					break; // 루프 탈출. 
 				}
+
+				if (colorBtn.usingColorItemState && !grabbed_block.isKeyBlock() && !swap_target.isKeyBlock())
+                {
+					this.swapBlockChangeColor(grabbed_block, grabbed_block.slide_dir, swap_target);
+					this.grabbed_block = null;
+					colorBtn.UseColorItem();
+					break;
+				}
+
 				// 블록을 교체한다.
 				this.swapBlock(
 					grabbed_block, grabbed_block.slide_dir, swap_target);
@@ -640,7 +663,54 @@ public class BlockRoot : MonoBehaviour
 		return (opposit);
 	}
 
+	public void swapBlockChangeColor(BlockControl block0, Block.DIR4 dir, BlockControl block1)
+    {
+		// 각 블록의 색을 기억해 둔다.
+		Block.COLOR color0 = block0.color;
+		Block.COLOR color1 = block1.color;
 
+		// 각 블록의 메쉬를 기억해 둔다
+		Mesh block0Mesh = block0.gameObject.GetComponent<MeshFilter>().sharedMesh;
+		Mesh block1Mesh = block1.gameObject.GetComponent<MeshFilter>().sharedMesh;
+
+		bool isKey0 = block0.isKeyBlock();
+		bool isKey1 = block1.isKeyBlock();
+		bool isYarn0 = block0.isYarn();
+		bool isYarn1 = block1.isYarn();
+
+		// 각 블록의.
+		// 확대율을 기억해 둔다.
+		Vector3 scale0 =
+			block0.transform.localScale;
+		Vector3 scale1 =
+			block1.transform.localScale;
+		//  각 블록의 '사라지는 시간'을 기억해 둔다.
+		float vanish_timer0 = block0.vanish_timer;
+		float vanish_timer1 = block1.vanish_timer;
+		// 각 블록이 이동할 곳을 구한다.
+		Vector3 offset0 = BlockRoot.getDirVector(dir);
+		Vector3 offset1 = BlockRoot.getDirVector(BlockRoot.getOppositDir(dir));
+		block0.setColor(color1); //  색을 교체한다.
+	//	block1.setColor(color0);
+
+		//메쉬 필터를 통한 외형 변경
+		block0.GetComponent<MeshFilter>().sharedMesh = block1Mesh;
+		block1.GetComponent<MeshFilter>().sharedMesh = block0Mesh;
+
+		block0.setKeyBlock(isKey1);
+		block1.setKeyBlock(isKey0);
+		block0.setYarn(isYarn1);
+		block1.setYarn(isYarn0);
+
+		block0.transform.localScale = scale1; // 확대율을 교체한다.
+		block1.transform.localScale = scale0;
+		block0.vanish_timer = vanish_timer1; // 사라지는 시간을 교체한다.
+		block1.vanish_timer = vanish_timer0;
+		block0.beginSlide(offset0); // 원래 블록의 이동을 시작.
+		block1.beginSlide(offset1); // 이동할 곳의 블록 이동을 시작.
+
+		swapBlock(block1, dir, block0);
+	}
 
 	public void swapBlock(BlockControl block0, Block.DIR4 dir, BlockControl block1)
 	{

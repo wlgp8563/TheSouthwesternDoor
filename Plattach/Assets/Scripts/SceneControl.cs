@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SceneControl : MonoBehaviour
 {
@@ -41,6 +42,8 @@ public class SceneControl : MonoBehaviour
 	[SerializeField]
 	private float verticalSplitMoves; //남은 이동 횟수가 verticalSplit 할건지?
 
+	public Text SplitInfo;
+
 	private BlockRoot block_root = null;
 	void Start()
 	{
@@ -57,7 +60,7 @@ public class SceneControl : MonoBehaviour
 
 		// MoveCounter를 가져온다.
 		this.move_counter = this.gameObject.GetComponent<MoveCounter>();
-		
+
 		// MoveCounter를 가져온다.
 		this.target_counter = this.gameObject.GetComponent<TargetCounter>();
 
@@ -71,6 +74,13 @@ public class SceneControl : MonoBehaviour
 
 	void Update()
 	{
+		if (verticalSplitMoves - this.move_counter.getMoves() > 0) 
+			SplitInfo.text = (verticalSplitMoves - this.move_counter.getMoves()).ToString() + "회 이동 후\n맵이 가로로 붙습니다";
+		else if (horizontalSplitMoves - this.move_counter.getMoves() > 0)
+			SplitInfo.text = (horizontalSplitMoves - this.move_counter.getMoves()).ToString() + "회 이동 후\n맵이 세로로 붙습니다";
+		else
+			SplitInfo.text = "맵이 완전히 합쳐졌습니다!";
+
 		this.step_timer += Time.deltaTime;
 
 		switch (this.step)
@@ -103,6 +113,36 @@ public class SceneControl : MonoBehaviour
 			switch (this.step)
 			{
 				case STEP.PLAY:
+					if(this.move_counter.isLeftMovesZero())
+                    {
+						this.block_root.isGrabbable = false;
+					}
+					if(!this.move_counter.isLeftMovesZero())
+                    {
+						this.block_root.isGrabbable = true;
+					}
+					// 클리어 조건을 만족하면.
+					if (this.target_counter.isTargetClear())
+					{
+						if (level == 1)
+						{
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
+						}
+						else if (level == 2)
+						{
+							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
+						}
+					}
+					else if (this.move_counter.isLeftMovesZero() && !this.target_counter.isIgniting)
+					{
+						scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
+						scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
+						this.next_step = STEP.FAIL;
+					}
 					if (this.move_counter.getMoves() == horizontalSplitMoves)
 					{
 						block_root.horizontalSplitSetUp(changedGap);
@@ -135,49 +175,6 @@ public class SceneControl : MonoBehaviour
 					this.step_timer = 0.0f;
 					break;
 			}
-		}
-	}
-
-	public void checkClearOrOver()//발화가 모두 끝나면 실행되는 함수
-	{
-		// 상태변화대기-----.
-		if (this.next_step == STEP.NONE)
-		{
-			switch (this.step)
-			{
-				case STEP.PLAY:
-					// 클리어 조건을 만족하면.
-					if (this.target_counter.isTargetClear())
-					{
-						if (level == 1)
-						{
-							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
-							this.next_step = STEP.LEVEL1CLEAR; // 클리어 상태로 이행.
-						}
-						else if (level == 2)
-						{
-							scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-							scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
-							this.next_step = STEP.LEVEL2CLEAR; // 클리어 상태로 이행.
-						}
-					}
-					if(this.move_counter.isLeftMovesZero())
-                    {
-						Invoke("checkfail", 1f);
-					}
-					break;
-			}
-		}
-	}
-
-	void checkfail()
-    {
-		if (!this.target_counter.isTargetClear())
-		{
-			scoreManager.UpdateCurrentScore(this.score_counter.GetTotalScore());
-			scoreManager.UpdateCurrentMoves(this.move_counter.getLeftMoves());
-			this.next_step = STEP.FAIL;
 		}
 	}
 

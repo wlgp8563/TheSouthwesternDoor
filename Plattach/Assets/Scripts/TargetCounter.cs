@@ -13,6 +13,9 @@ public class TargetCounter : MonoBehaviour
 	private BlockRoot block_root = null;
 	public int goalKeyBlock; //key block을 없앨 목표치
 	private SceneControl scene_control = null;
+	public bool isIgniting = false;
+
+	public int timer = 0;
 
 	void Start()
 	{
@@ -22,8 +25,8 @@ public class TargetCounter : MonoBehaviour
 		this.guistyle.fontSize = 30;
 	}
 
-    private void Update()
-    {
+	private void Update()
+	{
 		int keyCount = 0;
 		int yarnCount = 0;
 		int igniteCount = 0;
@@ -33,17 +36,27 @@ public class TargetCounter : MonoBehaviour
 				keyCount++;
 			if (block.isYarn())
 				yarnCount++;
-			if (block.isVanishing())
+			if (!block.isIdle())
+			{
 				igniteCount++;
+				isIgniting = true;
+			}
 		}
-		if (igniteCount == 0) //발화중인 블럭이 없을때마다
-			scene_control.checkClearOrOver(); // scene_control의 게임 상태를 체크하는 함수를 호출
+		timer++;
+		if (igniteCount == 0 && timer > 2000)  //발화중인 블럭이 없을때마다
+		{
+			//scene_control.checkClearOrOver(); // scene_control의 게임 상태를 체크하는 함수를 호출
+			isIgniting = false;
+			timer = 0;
+		}
+		Debug.Log(isIgniting);
+		//Debug.Log(igniteCount);
 
 		goalKeyBlock = keyCount;
 		leftYarn = yarnCount;
 	}
 
-    void OnGUI()
+	void OnGUI()
 	{
 		int x = 10;
 		int y = 180;
@@ -72,7 +85,7 @@ public class TargetCounter : MonoBehaviour
 	{
 		if (this.leftYarn > 0)
 			return false;
-		if (this.block_root.KeyMode && this.goalKeyBlock>0)
+		if (this.block_root.KeyMode && this.goalKeyBlock > 0)
 			return false;
 		return true;
 	}
